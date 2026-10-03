@@ -7,7 +7,7 @@
   <meta name="description" content="Dr. Vaani — A soul born in Dubai, rooted in India, living in medicine and grace." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -198,8 +198,7 @@
       .tldot { left:20px; top:24px; transform:translate(-50%,0); }
       .tlib { display:none; }
       .nav-links { display:none; }
-      #mobile-nav { display:flex !important; }
-      #hero { padding-bottom:100px; }
+
       section { padding:72px 5%; }
       .sh { margin-bottom:40px; }
       .gg { grid-template-columns:1fr 1fr; }
@@ -227,8 +226,6 @@
       .fn { font-size:2rem; }
       .btn-primary,.btn-outline { width:100%; max-width:240px; text-align:center; }
       .hero-btns { flex-direction:column; align-items:center; }
-      #mobile-nav { bottom:14px; padding:8px 12px; }
-      #mobile-nav a { font-size:.52rem; padding:6px 8px; }
     }
 
     /* ── XS phones ── */
@@ -236,7 +233,6 @@
       .hero-name { font-size:2rem; }
       .tg,.pg { grid-template-columns:1fr; }
       .hero-stats { gap:10px; }
-      #mobile-nav a { font-size:.46rem; padding:5px 6px; }
     }
 
     /* ── Reduce motion ── */
@@ -365,23 +361,6 @@ document.querySelectorAll('.stat-item').forEach(function(si){
       .photo-main::after { display:none; }
     }
 
-    /* ── MOBILE BOTTOM PILL NAV ── */
-    #mobile-nav {
-      position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
-      z-index:500; display:none; align-items:center; justify-content:center;
-      background:rgba(255,255,255,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-      border-radius:60px; padding:10px 16px;
-      box-shadow:0 8px 32px rgba(180,100,140,.22), 0 0 0 1px rgba(232,164,184,.28);
-      gap:0;
-    }
-    #mobile-nav a {
-      font-size:.56rem; letter-spacing:1.4px; text-transform:uppercase;
-      color:#6b5070; text-decoration:none; font-weight:600;
-      padding:7px 9px; border-radius:50px;
-      transition:color .2s, background .2s, transform .45s cubic-bezier(.34,1.82,.64,1);
-      white-space:nowrap; will-change:transform; display:inline-block;
-    }
-    #mobile-nav a.mob-active { color:#c47a92; background:rgba(232,164,184,.15); }
 
     /* ===== SWEET AMBIENT AURORA BACKGROUND ===== */
     #ambient-bg {
@@ -692,6 +671,35 @@ document.querySelectorAll('.stat-item').forEach(function(si){
     .aurora-orb { opacity: 0.28 !important; }
     .blob { opacity: 0.15 !important; }
 
+
+    /* ═══ PERFORMANCE OPTIMIZATION (GPU offloading) ═══ */
+    /* Force all animated elements onto GPU compositor */
+    .petal, .fheart, .pop-item, .fairy-sparkle, .aurora-orb, .blob,
+    .sparkle, .click-heart, .pop-spark {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    /* Contain layout thrashing on fixed elements */
+    #ambient-bg, #magic-pop-container, #bg-canvas,
+    .petal-wrap, #letter-overlay, #cursor, #cursor-ring {
+      contain: strict;
+    }
+    /* Mobile: reduce blur cost heavily (blur = biggest GPU drain) */
+    @media(max-width: 900px), (hover: none) {
+      nav { backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; }
+      .letter-card { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      .fbadge { backdrop-filter: blur(6px) !important; -webkit-backdrop-filter: blur(6px) !important; }
+      /* Reduce heavy aurora blur on mobile */
+      .aurora-orb { filter: blur(45px) !important; }
+      /* Reduce orb count visibility on low-end */
+      .orb-3, .orb-4 { opacity: 0.15 !important; }
+    }
+    /* Pause ALL non-critical animations when tab is hidden */
+    .js-tab-hidden * {
+      animation-play-state: paused !important;
+    }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -915,15 +923,6 @@ document.querySelectorAll('.stat-item').forEach(function(si){
 
 
 
-<!-- MOBILE BOTTOM FLOATING PILL NAV -->
-<nav id="mobile-nav">
-  <a href="#hero" class="mob-active">Home</a>
-  <a href="#about">About</a>
-  <a href="#gallery">Gallery</a>
-  <a href="#journey">Journey</a>
-  <a href="#personality">Soul</a>
-  <a href="#vibes">Vibes</a>
-</nav>
 
 </div><!-- /.wrapper -->
 
@@ -974,7 +973,7 @@ if (!isTouch) {
 (function initFairySparkles(){
   var cont = document.getElementById('sparkle-container');
   if (!cont) return;
-  var count = isTouch ? 10 : 20;
+  var count = isTouch ? 8 : 20;
   for (var i = 0; i < count; i++) {
     var sp = document.createElement('div');
     sp.className = 'fairy-sparkle';
@@ -1219,7 +1218,7 @@ document.querySelectorAll('.stat-item').forEach(function(si){
 (function initSakura(){
   var wrap = document.getElementById('petalWrap');
   if (!wrap) return;
-  var count = isTouch ? 8 : 16;
+  var count = isTouch ? 6 : 16;
   var colors = ['#f9c8d4', '#f2a0b8', '#fadadd', '#fbb6c8', '#e8a4b8', '#fce4ec'];
   for (var i = 0; i < count; i++) {
     var p = document.createElement('div');
@@ -1252,7 +1251,7 @@ document.querySelectorAll('.stat-item').forEach(function(si){
     document.body.appendChild(h);
     setTimeout(function(){ h.remove(); }, 6000);
   }
-  setInterval(spawnHeart, 1600);
+  setInterval(spawnHeart, isTouch ? 2500 : 1600);
 })();
 
 /* ===== CLICK HEART & SPARKLE BURST ===== */
@@ -1435,6 +1434,28 @@ setTimeout(function(){
     }
   } catch(e) {}
 }, 2400);
+
+
+/* PERFORMANCE OPTIMIZER */
+(function initPerfOptimizer(){
+  document.addEventListener('visibilitychange', function(){
+    document.body.classList.toggle('js-tab-hidden', document.hidden);
+  });
+  document.querySelectorAll('img').forEach(function(img){
+    img.decoding = 'async';
+    img.loading = 'lazy';
+    if ('decode' in img) { img.decode().catch(function(){}); }
+  });
+  if (window.innerWidth < 480) {
+    document.querySelectorAll('.aurora-orb').forEach(function(o, i){ if (i >= 2) o.style.display = 'none'; });
+    document.querySelectorAll('.fairy-sparkle').forEach(function(s, i){ if (i >= 6) s.remove(); });
+  }
+  setTimeout(function(){
+    document.querySelectorAll('.rv.vis, .rvl.vis, .rvr.vis').forEach(function(el){ el.style.willChange = 'auto'; });
+  }, 5000);
+  var canvas = document.getElementById('bg-canvas');
+  if (canvas && window.innerWidth <= 900) canvas.style.transform = 'translateZ(0)';
+})();
 
 </script>
 
