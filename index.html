@@ -73,7 +73,8 @@ body{font-family:Inter,sans-serif;background:var(--cr);color:var(--tx);cursor:no
   display:none;flex-direction:row;gap:0;align-items:center;justify-content:center}
 #mnav a{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);
   text-decoration:none;font-weight:600;padding:7px 10px;border-radius:50px;
-  transition:color .2s,background .2s;white-space:nowrap}
+  transition:color .2s,background .2s,transform .45s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;will-change:transform;display:inline-block}
 #mnav a.act{color:var(--rd);background:rgba(232,164,184,.15)}
 
 #hero{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -437,8 +438,11 @@ footer{text-align:center;padding:55px 20px;background:rgba(255,255,255,.45);bord
 'use strict';
 var lb=document.getElementById('lb'),done=false;
 function hide(){if(done)return;done=true;if(lb)lb.style.width='100%';setTimeout(function(){var l=document.getElementById('ldr');if(l)l.classList.add('out');},360);}
-if(lb){var xhr=new XMLHttpRequest();xhr.open('GET','photo1.jpg',true);xhr.responseType='blob';xhr.onprogress=function(e){if(e.lengthComputable)lb.style.width=Math.min((e.loaded/e.total)*94,94)+'%';};xhr.onload=hide;xhr.onerror=hide;xhr.send();}
-window.addEventListener('load',function(){setTimeout(hide,400);});
+/* Hard 3s guarantee — loader NEVER gets stuck */
+setTimeout(hide,3000);
+document.addEventListener('DOMContentLoaded',function(){setTimeout(hide,800);});
+if(lb){var xhr=new XMLHttpRequest();xhr.open('GET','photo1.jpg',true);xhr.responseType='blob';xhr.onprogress=function(e){if(e.lengthComputable)lb.style.width=Math.min((e.loaded/e.total)*94,94)+'%';};xhr.onload=hide;xhr.onerror=hide;xhr.onabort=hide;xhr.send();}
+window.addEventListener('load',function(){setTimeout(hide,300);});
 var isT=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 var cur=document.getElementById('cur'),crg=document.getElementById('crg');
 var tx=0,ty=0,rx=0,ry=0;
@@ -482,6 +486,41 @@ var nav=document.getElementById('nav'),sc2=false;
 window.addEventListener('scroll',function(){if(!sc2){sc2=true;requestAnimationFrame(function(){sc2=false;if(!nav)return;if(window.scrollY>50){nav.style.background='rgba(253,248,243,.96)';nav.style.boxShadow='0 3px 25px rgba(180,100,140,.09)';}else{nav.style.background='rgba(253,248,243,.75)';nav.style.boxShadow='none';}});}},{passive:true});
 var mna=document.querySelectorAll('#mnav a');
 window.addEventListener('scroll',function(){var pos=window.scrollY+180;mna.forEach(function(a){var s=document.querySelector(a.getAttribute('href'));if(s){var top=s.offsetTop,bot=top+s.offsetHeight;if(pos>=top&&pos<bot)a.classList.add('act');else a.classList.remove('act');}});},{passive:true});
+/* iPhone wobbly dock effect on mobile bottom nav */
+(function(){
+  var links=document.querySelectorAll('#mnav a');
+  if(!links.length)return;
+  links.forEach(function(link,idx){
+    link.addEventListener('touchstart',function(e){
+      links.forEach(function(l,i){
+        var dist=Math.abs(i-idx);
+        if(dist===0){
+          l.style.transition='transform .45s cubic-bezier(.34,1.82,.64,1)';
+          l.style.transform='translateY(-14px) scale(1.35)';
+          l.style.color='var(--rd)';
+        } else if(dist===1){
+          l.style.transition='transform .45s cubic-bezier(.34,1.56,.64,1)';
+          l.style.transform='translateY(-6px) scale(1.14)';
+        } else if(dist===2){
+          l.style.transition='transform .38s cubic-bezier(.34,1.4,.64,1)';
+          l.style.transform='translateY(-2px) scale(1.05)';
+        } else {
+          l.style.transition='transform .3s var(--ez)';
+          l.style.transform='';
+        }
+      });
+    },{passive:true});
+    link.addEventListener('touchend',function(){
+      setTimeout(function(){
+        links.forEach(function(l){
+          l.style.transition='transform .5s cubic-bezier(.34,1.56,.64,1)';
+          l.style.transform='';
+          l.style.color='';
+        });
+      },180);
+    },{passive:true});
+  });
+})();
 (function(){var el=document.getElementById('httl');if(!el)return;var txt='Physician · Scholar · Free Spirit · Gym Lover';var i=0,span=document.createElement('span'),car=document.createElement('span');car.className='twc';el.appendChild(span);el.appendChild(car);function type(){if(i<=txt.length){span.textContent=txt.slice(0,i++);setTimeout(type,i<=txt.length?50:1000);}else{car.style.display='none';}}setTimeout(type,1600);})();
 (function(){var wrap=document.getElementById('pw');if(!wrap)return;var mob=window.innerWidth<600,n=mob?5:13;var cols=['#f9c8d4','#f2a0b8','#fadadd','#fbb6c8','#e8a4b8','#fce4ec'];for(var i=0;i<n;i++){var p=document.createElement('div');p.className='pt';var sz=Math.random()*13+7;p.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;animation-duration:'+(Math.random()*9+8)+'s;animation-delay:-'+(Math.random()*14)+'s;background:'+cols[Math.floor(Math.random()*cols.length)]+';--d:'+((Math.random()-.5)*200)+'px;--s:'+(Math.random()*720-360)+'deg;';wrap.appendChild(p);}})();
 (function(){var em=['💕','🌸','✨','💖','🌺','💗'];function sp(){var h=document.createElement('div');h.className='fh';h.textContent=em[Math.floor(Math.random()*em.length)];h.style.cssText='left:'+(Math.random()*92)+'vw;bottom:0;font-size:'+(Math.random()*11+9)+'px;animation-duration:'+(Math.random()*3+3.5)+'s;';document.body.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},7000);}setInterval(sp,2200);})();
