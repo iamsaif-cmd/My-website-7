@@ -1,533 +1,1111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<meta name="theme-color" content="#fdf8f3"/>
-<title>Dr. Vaani</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dr. Vaani — Her Universe</title>
+  <meta name="description" content="Dr. Vaani — A soul born in Dubai, rooted in India, living in medicine and grace." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #fdf8f3; --blush: #f9ede6; --rose: #e8a4b8;
+      --rose-deep: #c47a92; --peach: #f2c4a4; --gold: #c9946a;
+      --gold-lt: #e8c49a; --plum: #3d2040; --plum-lt: #6b4070;
+      --lilac: #d4b8e0; --sky: #c8dff5;
+      --text: #2a1830; --text-sm: #6b5070;
+      --shadow: rgba(180,100,140,0.18);
+      --glow-rose: rgba(232,164,184,0.55);
+    }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body { font-family: Inter, sans-serif; background: var(--cream); color: var(--text); cursor: none; overflow-x: hidden; }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --cr:#fdf8f3;--ro:#e8a4b8;--rd:#c47a92;
-  --pe:#f2c4a4;--go:#c9946a;--gl:#e8c49a;
-  --pl:#3d2040;--li:#d4b8e0;--sk:#c8dff5;
-  --tx:#2a1830;--ts:#6b5070;
-  --sh:rgba(180,100,140,.15);--gr:rgba(232,164,184,.5);
-  --ez:cubic-bezier(.23,1,.32,1);
-  --es:cubic-bezier(.34,1.56,.64,1);
-}
-html{scroll-behavior:smooth;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-body{font-family:Inter,sans-serif;background:var(--cr);color:var(--tx);cursor:none;overflow-x:hidden}
+    /* CURSOR */
+    #cursor { position:fixed;width:14px;height:14px;background:var(--rose-deep);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s;mix-blend-mode:multiply; }
+    #cursor-ring { position:fixed;width:40px;height:40px;border:1.5px solid var(--rose-deep);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .18s ease;opacity:.6; }
 
-#ldr{position:fixed;inset:0;z-index:10000;background:var(--cr);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transition:opacity .7s var(--ez),visibility .7s}
-#ldr.out{opacity:0;visibility:hidden;pointer-events:none}
-.ln{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;
-  color:var(--pl);letter-spacing:12px;animation:lp 1.6s ease-in-out infinite}
-.ls{font-size:.68rem;letter-spacing:5px;text-transform:uppercase;
-  color:var(--rd);margin-top:6px;opacity:.7}
-.lt{width:160px;height:2px;margin-top:28px;
-  background:rgba(196,122,146,.12);border-radius:2px;overflow:hidden}
-.lb{height:100%;width:0;
-  background:linear-gradient(90deg,var(--ro),var(--go),var(--ro));
-  background-size:200% 100%;border-radius:2px;
-  transition:width .25s var(--ez);animation:ls2 1.8s linear infinite}
-@keyframes lp{0%,100%{opacity:.2;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
-@keyframes ls2{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    /* CANVAS */
+    #bg-canvas { position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none; }
 
-#bgc{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-#cur{position:fixed;width:12px;height:12px;background:var(--rd);border-radius:50%;
-  pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:multiply;
-  transform:translate(-50%,-50%);transition:width .18s,height .18s,background .18s}
-#crg{position:fixed;width:34px;height:34px;border:1.5px solid var(--rd);border-radius:50%;
-  pointer-events:none;z-index:9998;will-change:transform;opacity:.6;
-  transform:translate(-50%,-50%);transition:width .14s,height .14s,border-color .14s}
-.wrap{position:relative;z-index:1}
+    /* LOADER */
+    #loader { position:fixed;inset:0;z-index:9999;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s; }
+    .loader-name { font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--plum);letter-spacing:8px;animation:loaderPulse 1.5s ease-in-out infinite; }
+    .loader-bar { width:120px;height:2px;margin-top:20px;background:rgba(196,122,146,.2);border-radius:2px;overflow:hidden; }
+    .loader-fill { height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:2px;animation:loadFill 2.5s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes loaderPulse { 0%,100%{opacity:.4}50%{opacity:1} }
+    @keyframes loadFill { to{width:100%} }
+    #loader { animation:loaderAutoHide .8s 3.5s ease forwards; }
+    #loader.hidden { animation:loaderAutoHide .5s ease forwards!important; }
+    @keyframes loaderAutoHide{to{opacity:0;visibility:hidden;pointer-events:none}}
 
-#nav{position:fixed;top:0;left:0;width:100%;z-index:500;
-  padding:18px 6%;display:flex;align-items:center;justify-content:space-between;
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  background:rgba(253,248,243,.75);border-bottom:1px solid rgba(232,164,184,.18);
-  transition:background .4s,box-shadow .4s}
-.nlogo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;
-  color:var(--pl);letter-spacing:2px;text-decoration:none}
-.nlogo span{color:var(--rd)}
-.nlinks{display:flex;gap:32px;list-style:none}
-.nlinks a{font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;
-  text-decoration:none;color:var(--ts);font-weight:500;transition:color .22s;position:relative}
-.nlinks a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
-  background:var(--rd);border-radius:2px;transition:width .22s var(--ez)}
-.nlinks a:hover{color:var(--rd)}
-.nlinks a:hover::after{width:100%}
+    /* WRAPPER */
+    .wrapper { position:relative;z-index:1; }
 
-#mnav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:500;
-  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-radius:60px;padding:10px 18px;
-  box-shadow:0 8px 32px rgba(180,100,140,.22),0 0 0 1px rgba(232,164,184,.28);
-  display:none;flex-direction:row;gap:0;align-items:center;justify-content:center}
-#mnav a{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);
-  text-decoration:none;font-weight:600;padding:7px 10px;border-radius:50px;
-  transition:color .2s,background .2s,transform .45s cubic-bezier(.34,1.56,.64,1);
-  white-space:nowrap;will-change:transform;display:inline-block}
-#mnav a.act{color:var(--rd);background:rgba(232,164,184,.15)}
+    /* NAV */
+    nav { position:fixed;top:0;left:0;width:100%;z-index:100;padding:22px 6%;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(253,248,243,.7);border-bottom:1px solid rgba(232,164,184,.2);transition:all .4s; }
+    .nav-logo { font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--plum);letter-spacing:2px; }
+    .nav-logo span { color:var(--rose-deep); }
+    .nav-links { display:flex;gap:36px;list-style:none; }
+    .nav-links a { font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;color:var(--text-sm);font-weight:500;transition:color .3s;position:relative; }
+    .nav-links a::after { content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--rose-deep);transition:width .3s; }
+    .nav-links a:hover { color:var(--rose-deep); }
+    .nav-links a:hover::after { width:100%; }
 
-#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;
-  padding:110px 6% 80px;position:relative;overflow:hidden}
-.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.3;
-  will-change:transform;animation:bf 9s ease-in-out infinite alternate;pointer-events:none}
-.b1{width:460px;height:460px;background:var(--ro);top:-90px;right:-70px}
-.b2{width:360px;height:360px;background:var(--pe);bottom:-70px;left:-55px;
-  animation-delay:2s;animation-duration:11s}
-.b3{width:300px;height:300px;background:var(--li);top:32%;left:22%;
-  animation-delay:4s;animation-duration:13s}
-@keyframes bf{0%{transform:translate(0,0) scale(1)}100%{transform:translate(26px,-34px) scale(1.07)}}
-.hin{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;
-  gap:56px;align-items:center;max-width:1160px;width:100%}
-.htag{display:inline-flex;align-items:center;gap:8px;
-  background:rgba(232,164,184,.15);border:1px solid rgba(232,164,184,.36);
-  padding:5px 16px;border-radius:50px;font-size:.74rem;letter-spacing:2px;
-  text-transform:uppercase;color:var(--rd);margin-bottom:20px;
-  opacity:0;transform:translateY(-10px);animation:fu .8s .2s var(--ez) forwards}
-.htag::before{content:'✦';font-size:.66rem}
-.hname{font-family:'Cormorant Garamond',serif;
-  font-size:clamp(3.2rem,6.5vw,5.6rem);font-weight:300;line-height:1.05;
-  color:var(--pl);margin-bottom:8px;opacity:0;transform:translateY(20px);
-  animation:fu .9s .4s var(--ez) forwards}
-.hl{font-style:italic;color:var(--rd);position:relative;cursor:pointer}
-.hl::after{content:'';position:absolute;bottom:4px;left:0;right:0;height:2.5px;
-  border-radius:2px;background:linear-gradient(90deg,var(--ro),var(--go));
-  transform:scaleX(0);transform-origin:left;animation:lr 1s 1.3s var(--ez) forwards;will-change:transform}
-@keyframes lr{to{transform:scaleX(1)}}
-.httl{font-size:clamp(.85rem,1.4vw,1rem);letter-spacing:3px;text-transform:uppercase;
-  color:var(--go);font-weight:500;margin-bottom:24px;min-height:1.6em;
-  opacity:0;animation:fu .8s .65s var(--ez) forwards}
-.hdesc{font-size:.97rem;line-height:1.9;color:var(--ts);max-width:460px;margin-bottom:36px;
-  opacity:0;animation:fu .8s .85s var(--ez) forwards}
-.hsts{display:flex;gap:28px;margin-bottom:40px;flex-wrap:wrap;
-  opacity:0;animation:fu .8s 1.05s var(--ez) forwards}
-.sit{cursor:default;will-change:transform;transition:transform .28s var(--ez)}
-.sit:hover{transform:scale(1.12) translateY(-5px)}
-.sn{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--pl);line-height:1}
-.sl{font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-top:3px}
-.hbtns{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:fu .8s 1.25s var(--ez) forwards}
-.bp{padding:12px 30px;border-radius:50px;background:linear-gradient(135deg,var(--rd),var(--pl));
-  color:#fff;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;
-  font-weight:500;box-shadow:0 8px 28px var(--gr);
-  will-change:transform;transition:transform .28s var(--ez),box-shadow .28s;display:inline-block}
-.bp:hover{transform:translateY(-4px);box-shadow:0 16px 40px var(--gr)}
-.bo{padding:12px 30px;border-radius:50px;border:1.5px solid var(--rd);color:var(--rd);
-  font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;font-weight:500;
-  will-change:transform;transition:transform .28s var(--ez),background .28s;display:inline-block}
-.bo:hover{background:rgba(196,122,146,.09);transform:translateY(-4px)}
-@keyframes fu{to{opacity:1;transform:translate(0)}}
+    /* HERO */
+    #hero { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 6% 80px;position:relative;overflow:hidden; }
+    .blob { position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;animation:blobFloat 8s ease-in-out infinite alternate; }
+    .blob-1 { width:500px;height:500px;background:var(--rose);top:-100px;right:-80px; }
+    .blob-2 { width:400px;height:400px;background:var(--peach);bottom:-80px;left:-60px;animation-delay:2s; }
+    .blob-3 { width:350px;height:350px;background:var(--lilac);top:30%;left:20%;animation-delay:4s; }
+    @keyframes blobFloat { 0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,-40px) scale(1.08)} }
+    .hero-inner { position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;width:100%; }
+    .hero-tag { display:inline-flex;align-items:center;gap:8px;background:rgba(232,164,184,.2);border:1px solid rgba(232,164,184,.4);padding:6px 18px;border-radius:50px;font-size:.78rem;letter-spacing:2px;text-transform:uppercase;color:var(--rose-deep);margin-bottom:24px; }
+    .hero-tag::before { content:'✦';font-size:.7rem; }
+    .hero-name { font-family:'Cormorant Garamond',serif;font-size:clamp(3.5rem,7vw,6rem);font-weight:300;line-height:1.05;color:var(--plum);margin-bottom:8px; }
+    .hero-name .hl { font-style:italic;color:var(--rose-deep);position:relative; }
+    .hero-name .hl::after { content:'';position:absolute;bottom:4px;left:0;right:0;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--rose),var(--gold));transform:scaleX(0);transform-origin:left;animation:lineReveal 1.2s .8s forwards ease-out; }
+    @keyframes lineReveal { to{transform:scaleX(1)} }
+    .hero-title { font-size:clamp(.9rem,1.5vw,1.1rem);letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:28px; }
+    .hero-desc { font-size:1.05rem;line-height:1.9;color:var(--text-sm);max-width:480px;margin-bottom:40px; }
+    .hero-stats { display:flex;gap:32px;margin-bottom:44px; }
+    .stat-num { font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--plum);line-height:1; }
+    .stat-label { font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-sm);margin-top:4px; }
+    .hero-btns { display:flex;gap:16px;flex-wrap:wrap; }
+    .btn-p { padding:14px 34px;border-radius:50px;background:linear-gradient(135deg,var(--rose-deep),var(--plum));color:#fff;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;font-weight:500;box-shadow:0 8px 30px var(--glow-rose);transition:all .35s;display:inline-block; }
+    .btn-p:hover { transform:translateY(-3px);box-shadow:0 16px 40px var(--glow-rose); }
+    .btn-o { padding:14px 34px;border-radius:50px;border:1.5px solid var(--rose-deep);color:var(--rose-deep);font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;font-weight:500;transition:all .35s;display:inline-block; }
+    .btn-o:hover { background:rgba(196,122,146,.08);transform:translateY(-3px); }
+    .hero-visual { position:relative;display:flex;justify-content:center;align-items:center; }
+    .photo-main { position:relative;width:360px;height:480px;transform-style:preserve-3d; }
+    .photo-main img { width:100%;height:100%;object-fit:cover;border-radius:28px;box-shadow:0 30px 80px rgba(180,100,140,.25),0 0 0 1px rgba(255,255,255,.6) inset; }
+    .photo-glow { position:absolute;inset:-20px;background:radial-gradient(ellipse at center,var(--glow-rose) 0%,transparent 70%);border-radius:50px;z-index:-1;animation:glowPulse 3s ease-in-out infinite; }
+    @keyframes glowPulse { 0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)} }
+    .fbadge { position:absolute;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border:1px solid rgba(232,164,184,.3);border-radius:20px;padding:12px 18px;box-shadow:0 8px 32px var(--shadow);display:flex;align-items:center;gap:10px;animation:fbadgeFloat 4s ease-in-out infinite; }
+    .fbadge .bi { font-size:1.4rem; }
+    .fbadge .bt { font-size:.78rem;font-weight:500;color:var(--plum);line-height:1.4; }
+    .fbadge .bt small { color:var(--text-sm);font-size:.68rem;display:block; }
+    .bd1 { top:30px;right:-60px;animation-delay:0s; }
+    .bd2 { bottom:60px;left:-70px;animation-delay:1.5s; }
+    .bd3 { bottom:-20px;right:0;animation-delay:1s; }
+    @keyframes fbadgeFloat { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
 
-.hvis{position:relative;display:flex;justify-content:center;align-items:center}
-.pw2{position:relative;width:340px;height:460px;will-change:transform;transition:transform .08s linear}
-.pw2 img{width:100%;height:100%;object-fit:cover;border-radius:26px;
-  box-shadow:0 26px 65px rgba(180,100,140,.22);display:block}
-.pg2{position:absolute;inset:-22px;
-  background:radial-gradient(ellipse at 50% 50%,var(--gr) 0%,transparent 70%);
-  border-radius:48px;z-index:-1;pointer-events:none;will-change:opacity,transform;
-  animation:gp 3s ease-in-out infinite}
-@keyframes gp{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.95;transform:scale(1.05)}}
-.pw2::after{content:'';position:absolute;inset:0;border-radius:26px;
-  background:linear-gradient(135deg,transparent,rgba(255,220,240,.18) 45%,rgba(255,255,255,.28) 58%,transparent);
-  background-size:200% 200%;pointer-events:none;z-index:2;animation:sh2 4.5s ease-in-out infinite}
-@keyframes sh2{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
-.fb{position:absolute;background:rgba(255,255,255,.93);border:1px solid rgba(232,164,184,.26);
-  border-radius:17px;padding:10px 15px;box-shadow:0 6px 22px var(--sh);
-  display:flex;align-items:center;gap:8px;will-change:transform;
-  animation:bfl 4s ease-in-out infinite;white-space:nowrap}
-.fb .bi{font-size:1.3rem}.fb .bt{font-size:.74rem;font-weight:500;color:var(--pl);line-height:1.3}
-.fb .bt small{color:var(--ts);font-size:.64rem;display:block}
-.d1{top:26px;right:-60px}.d2{bottom:55px;left:-68px;animation-delay:1.5s}
-.d3{bottom:-18px;right:2px;animation-delay:1s}.d4{top:-16px;left:-6px;animation-delay:2.2s}
-@keyframes bfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+    /* SECTIONS */
+    section { padding:100px 6%;position:relative; }
+    .sh { text-align:center;margin-bottom:70px; }
+    .stag { font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--rose-deep);margin-bottom:12px;display:block; }
+    .stitle { font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:400;color:var(--plum);line-height:1.15; }
+    .sline { width:60px;height:2px;margin:18px auto 0;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:2px; }
 
-section{padding:90px 6%;position:relative}
-.sh{text-align:center;margin-bottom:62px}
-.stg{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--rd);margin-bottom:11px;display:block}
-.stt{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.3rem);font-weight:400;color:var(--pl);line-height:1.15}
-.sl2{width:54px;height:2px;margin:15px auto 0;background:linear-gradient(90deg,var(--ro),var(--go));border-radius:2px}
+    /* ABOUT */
+    #about { background:rgba(255,255,255,.4); }
+    .about-grid { display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto; }
+    .aps { position:relative;width:320px;height:420px; }
+    .aps .apbg { position:absolute;top:20px;right:-20px;width:280px;height:370px;background:linear-gradient(135deg,var(--rose),var(--peach));border-radius:24px;opacity:.4;transform:rotate(3deg); }
+    .aps img { position:relative;z-index:2;width:280px;height:370px;object-fit:cover;border-radius:24px;box-shadow:0 20px 60px var(--shadow);border:4px solid #fff;transition:transform .5s; }
+    .aps img:hover { transform:rotate(-1deg) scale(1.02); }
+    .aq { font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-style:italic;color:var(--plum);line-height:1.5;margin-bottom:28px;padding-left:24px;border-left:3px solid var(--rose); }
+    .at { font-size:1rem;line-height:1.9;color:var(--text-sm);margin-bottom:36px; }
+    .tg { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+    .tc { display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.8);border:1px solid rgba(232,164,184,.25);border-radius:14px;padding:12px 16px;font-size:.82rem;color:var(--plum);font-weight:500;box-shadow:0 4px 15px var(--shadow);transition:all .3s; }
+    .tc:hover { transform:translateY(-3px);box-shadow:0 10px 30px var(--shadow); }
 
-#about{background:rgba(255,255,255,.36)}
-.agr{display:grid;grid-template-columns:1fr 1fr;gap:55px;align-items:center;max-width:1060px;margin:0 auto}
-.aps{position:relative;width:290px;height:385px}
-.abg{position:absolute;top:18px;right:-16px;width:258px;height:342px;
-  background:linear-gradient(135deg,var(--ro),var(--pe));border-radius:20px;
-  opacity:.36;transform:rotate(3deg);pointer-events:none}
-.aps img{position:relative;z-index:2;width:258px;height:342px;object-fit:cover;border-radius:20px;
-  box-shadow:0 16px 50px var(--sh);border:3px solid #fff;
-  will-change:transform;transition:transform .5s var(--ez)}
-.aps img:hover{transform:rotate(-2deg) scale(1.03)}
-.aq{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-style:italic;color:var(--pl);
-  line-height:1.5;margin-bottom:24px;padding-left:20px;border-left:3px solid var(--ro)}
-.at{font-size:.95rem;line-height:1.9;color:var(--ts);margin-bottom:32px}
-.tg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.tc{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.88);
-  border:1px solid rgba(232,164,184,.2);border-radius:12px;padding:10px 14px;
-  font-size:.78rem;color:var(--pl);font-weight:500;
-  will-change:transform;transition:transform .22s var(--ez);cursor:default}
-.tc:hover{transform:translateY(-3px) scale(1.02)}
+    /* GALLERY */
+    .gg { display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;max-width:1100px;margin:0 auto; }
+    .gc { position:relative;border-radius:28px;overflow:hidden;aspect-ratio:3/4;box-shadow:0 20px 60px var(--shadow);transform-style:preserve-3d;transition:transform .5s,box-shadow .5s; }
+    .gc:hover { transform:translateY(-10px) rotateX(2deg);box-shadow:0 40px 80px var(--shadow); }
+    .gc img { width:100%;height:100%;object-fit:cover;transition:transform .6s; }
+    .gc:hover img { transform:scale(1.05); }
+    .gco { position:absolute;inset:0;background:linear-gradient(to top,rgba(61,32,64,.7) 0%,transparent 60%);display:flex;align-items:flex-end;padding:28px;opacity:0;transition:opacity .4s; }
+    .gc:hover .gco { opacity:1; }
+    .got { color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic; }
 
-.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1060px;margin:0 auto}
-.gc{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:3/4;
-  filter:drop-shadow(0 16px 40px var(--sh));will-change:transform,filter;cursor:pointer;
-  transition:transform .5s var(--ez),filter .5s var(--ez)}
-.gc:hover{transform:translateY(-9px) scale(1.01);filter:drop-shadow(0 30px 60px rgba(180,100,140,.26))}
-.gc img{width:100%;height:100%;object-fit:cover;will-change:transform;transition:transform .7s var(--ez);display:block}
-.gc:hover img{transform:scale(1.06)}
-.gco{position:absolute;inset:0;background:linear-gradient(to top,rgba(61,32,64,.72) 0%,transparent 55%);
-  display:flex;align-items:flex-end;padding:26px;opacity:0;will-change:opacity;transition:opacity .32s}
-.gc:hover .gco{opacity:1}
-.got{color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-style:italic}
+    /* TIMELINE */
+    #journey { background:rgba(255,255,255,.4); }
+    .tl { position:relative;max-width:780px;margin:0 auto;padding:0 20px; }
+    .tl::before { content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--rose),var(--gold),var(--lilac));transform:translateX(-50%); }
+    .tli { position:relative;margin-bottom:60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center; }
+    .tldot { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--rose-deep),var(--gold));border:3px solid var(--cream);box-shadow:0 0 0 6px rgba(196,122,146,.2),0 0 20px var(--glow-rose);z-index:2; }
+    .tlc { padding:0 20px; }
+    .tlyear { font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose-deep);margin-bottom:8px;font-weight:500; }
+    .tlh { font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;color:var(--plum);margin-bottom:10px; }
+    .tld { font-size:.88rem;line-height:1.8;color:var(--text-sm); }
+    .tlib { width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(232,164,184,.2),rgba(212,184,224,.2));border:1px solid rgba(232,164,184,.3);display:flex;align-items:center;justify-content:center;font-size:2.4rem;box-shadow:0 8px 30px var(--shadow);margin:auto; }
 
-#journey{background:rgba(255,255,255,.36)}
-.tl{position:relative;max-width:740px;margin:0 auto;padding:0 16px}
-.tl::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;
-  background:linear-gradient(to bottom,var(--ro),var(--go),var(--li));transform:translateX(-50%)}
-.tli{position:relative;margin-bottom:58px;display:grid;grid-template-columns:1fr 1fr;
-  gap:36px;align-items:center}
-.tdt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;
-  border-radius:50%;background:linear-gradient(135deg,var(--rd),var(--go));border:3px solid var(--cr);
-  box-shadow:0 0 0 5px rgba(196,122,146,.16);z-index:2;will-change:transform;transition:transform .32s var(--es)}
-.tli:hover .tdt{transform:translate(-50%,-50%) scale(1.5)}
-.tlc{padding:0 16px}
-.tyr{font-size:.68rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--rd);margin-bottom:7px;font-weight:500}
-.tlh{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;color:var(--pl);margin-bottom:8px}
-.tld{font-size:.84rem;line-height:1.82;color:var(--ts)}
-.tlib{width:72px;height:72px;border-radius:20px;
-  background:linear-gradient(135deg,rgba(232,164,184,.17),rgba(212,184,224,.17));
-  border:1px solid rgba(232,164,184,.26);display:flex;align-items:center;justify-content:center;
-  font-size:2.2rem;margin:auto;will-change:transform;transition:transform .4s var(--es)}
-.tli:hover .tlib{transform:rotate(8deg) scale(1.12)}
+    /* PERSONALITY */
+    .pg { display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:1100px;margin:0 auto; }
+    .pc { background:rgba(255,255,255,.75);border:1px solid rgba(232,164,184,.2);border-radius:28px;padding:36px 28px;text-align:center;backdrop-filter:blur(20px);box-shadow:0 10px 40px var(--shadow);transition:all .4s;transform-style:preserve-3d; }
+    .pc:hover { transform:translateY(-8px);box-shadow:0 30px 70px var(--shadow); }
+    .pci { width:70px;height:70px;border-radius:22px;margin:0 auto 20px;background:linear-gradient(135deg,var(--rose),var(--peach));display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:0 8px 25px var(--glow-rose); }
+    .pct { font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;color:var(--plum);margin-bottom:12px; }
+    .pcd { font-size:.85rem;line-height:1.8;color:var(--text-sm); }
 
-.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1060px;margin:0 auto}
-.pc{background:rgba(255,255,255,.84);border:1px solid rgba(232,164,184,.16);border-radius:24px;
-  padding:30px 22px;text-align:center;box-shadow:0 7px 28px var(--sh);
-  will-change:transform,box-shadow;cursor:default;transition:transform .32s var(--ez),box-shadow .32s}
-.pc:hover{transform:translateY(-8px);box-shadow:0 22px 55px rgba(180,100,140,.2)}
-.pci{width:62px;height:62px;border-radius:18px;margin:0 auto 16px;
-  background:linear-gradient(135deg,var(--ro),var(--pe));
-  display:flex;align-items:center;justify-content:center;font-size:1.65rem;
-  box-shadow:0 6px 20px var(--gr);will-change:transform;transition:transform .38s var(--es)}
-.pc:hover .pci{transform:scale(1.14) rotate(-6deg)}
-.pct{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--pl);margin-bottom:10px}
-.pcd{font-size:.8rem;line-height:1.78;color:var(--ts)}
+    /* VIBES */
+    #vibes { background:rgba(255,255,255,.4); }
+    .vi { max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center; }
+    .vl { list-style:none; }
+    .vl li { display:flex;align-items:flex-start;gap:16px;padding:18px 0;border-bottom:1px solid rgba(232,164,184,.15);transition:all .3s; }
+    .vl li:hover { padding-left:8px; }
+    .vic { font-size:1.5rem;flex-shrink:0;margin-top:2px; }
+    .vtx strong { display:block;color:var(--plum);font-size:.92rem;margin-bottom:3px; }
+    .vtx span { color:var(--text-sm);font-size:.82rem;line-height:1.6; }
+    .vqb { background:linear-gradient(135deg,rgba(232,164,184,.15),rgba(212,184,224,.12));border:1px solid rgba(232,164,184,.25);border-radius:32px;padding:44px 40px;text-align:center;backdrop-filter:blur(20px);box-shadow:0 20px 60px var(--shadow);position:relative; }
+    .vqb::before { content:'"';position:absolute;top:20px;left:30px;font-family:'Cormorant Garamond',serif;font-size:6rem;color:var(--rose);opacity:.3;line-height:1; }
+    .qt { font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-style:italic;color:var(--plum);line-height:1.6;position:relative;z-index:1;margin-bottom:20px; }
+    .qa { font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--rose-deep);font-weight:500; }
 
-#vibes{background:rgba(255,255,255,.36)}
-.vi{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
-.vl{list-style:none}
-.vl li{display:flex;align-items:flex-start;gap:14px;padding:15px 0;
-  border-bottom:1px solid rgba(232,164,184,.12);will-change:transform;
-  transition:transform .22s var(--ez);cursor:default}
-.vl li:hover{transform:translateX(9px)}
-.vic{font-size:1.4rem;flex-shrink:0;margin-top:1px;will-change:transform;transition:transform .28s var(--es)}
-.vl li:hover .vic{transform:scale(1.3) rotate(-10deg)}
-.vtx strong{display:block;color:var(--pl);font-size:.88rem;margin-bottom:2px}
-.vtx span{color:var(--ts);font-size:.78rem;line-height:1.6}
-.vqb{background:linear-gradient(135deg,rgba(232,164,184,.13),rgba(212,184,224,.1));
-  border:1px solid rgba(232,164,184,.2);border-radius:28px;padding:40px 36px;text-align:center;
-  box-shadow:0 16px 50px var(--sh);position:relative;
-  will-change:transform,box-shadow;transition:transform .32s var(--ez),box-shadow .32s}
-.vqb:hover{transform:translateY(-6px);box-shadow:0 30px 70px rgba(180,100,140,.18)}
-.vqb::before{content:'"';position:absolute;top:16px;left:26px;font-family:'Cormorant Garamond',serif;
-  font-size:5.5rem;color:var(--ro);opacity:.26;line-height:1;pointer-events:none}
-.qt{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:var(--pl);
-  line-height:1.62;position:relative;z-index:1;margin-bottom:17px}
-.qa{font-size:.76rem;letter-spacing:2px;text-transform:uppercase;color:var(--rd);font-weight:500}
+    /* FOOTER */
+    footer { text-align:center;padding:60px 20px;background:rgba(255,255,255,.5);border-top:1px solid rgba(232,164,184,.2); }
+    .fn { font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--plum);letter-spacing:4px;margin-bottom:12px; }
+    .ft { font-size:.82rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-sm);margin-bottom:30px; }
+    .fd { width:80px;height:1.5px;margin:0 auto 24px;background:linear-gradient(90deg,transparent,var(--rose),transparent); }
+    .fc { font-size:.76rem;color:rgba(107,64,112,.5);letter-spacing:1px; }
 
-footer{text-align:center;padding:55px 20px;background:rgba(255,255,255,.45);border-top:1px solid rgba(232,164,184,.17)}
-.fn{font-family:'Cormorant Garamond',serif;font-size:2.3rem;font-weight:300;color:var(--pl);letter-spacing:4px;margin-bottom:10px}
-.ft{font-size:.78rem;letter-spacing:2px;text-transform:uppercase;color:var(--ts);margin-bottom:26px}
-.fd{width:72px;height:1.5px;margin:0 auto 20px;background:linear-gradient(90deg,transparent,var(--ro),transparent)}
-.fc{font-size:.72rem;color:rgba(107,64,112,.42);letter-spacing:1px}
+    /* REVEAL */
+    .rv { opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1); }
+    .rv.vis { opacity:1;transform:translateY(0); }
+    .rvl { opacity:0;transform:translateX(-40px);transition:all .8s cubic-bezier(.16,1,.3,1); }
+    .rvl.vis { opacity:1;transform:translateX(0); }
+    .rvr { opacity:0;transform:translateX(40px);transition:all .8s cubic-bezier(.16,1,.3,1); }
+    .rvr.vis { opacity:1;transform:translateX(0); }
 
-.rv{opacity:0;transform:translateY(38px);transition:opacity .9s var(--ez),transform .9s var(--ez);will-change:opacity,transform}
-.rv.on{opacity:1;transform:none}
-.rvl{opacity:0;transform:translateX(-38px);transition:opacity .9s var(--ez),transform .9s var(--ez);will-change:opacity,transform}
-.rvl.on{opacity:1;transform:none}
-.rvr{opacity:0;transform:translateX(38px);transition:opacity .9s var(--ez),transform .9s var(--ez);will-change:opacity,transform}
-.rvr.on{opacity:1;transform:none}
+    /* RESPONSIVE */
 
-.pw{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.pt{position:absolute;top:-35px;opacity:0;border-radius:50% 0 50% 0;will-change:transform,opacity;animation:ptf linear infinite}
-@keyframes ptf{0%{transform:translateX(0) translateY(0) rotate(0deg);opacity:0}8%{opacity:.85}88%{opacity:.4}100%{transform:translateX(var(--d)) translateY(110vh) rotate(var(--s));opacity:0}}
-.fh{position:fixed;pointer-events:none;z-index:2;will-change:transform,opacity;animation:fhr linear forwards;opacity:0}
-@keyframes fhr{0%{transform:translateY(0) scale(0);opacity:0}14%{opacity:.8;transform:translateY(-38px) scale(1)}82%{opacity:.32}100%{transform:translateY(-220px) scale(.44);opacity:0}}
-.sp{position:fixed;pointer-events:none;z-index:9997;border-radius:50%;will-change:transform,opacity;animation:spp .6s var(--ez) forwards}
-@keyframes spp{0%{transform:translate(-50%,-50%) scale(1.1);opacity:1}100%{transform:translate(calc(-50% + var(--sx)),calc(-50% + var(--sy))) scale(0);opacity:0}}
-.ch{position:fixed;pointer-events:none;z-index:9996;will-change:transform,opacity;animation:chb .82s var(--ez) forwards}
-@keyframes chb{0%{transform:translate(-50%,-50%) scale(0);opacity:1}40%{transform:translate(calc(-50% + var(--cx)),calc(-50% + var(--cy))) scale(1.25);opacity:1}100%{transform:translate(calc(-50% + var(--cx2)),calc(-50% + var(--cy2))) scale(0);opacity:0}}
-.twc{display:inline-block;width:2px;height:.9em;background:var(--go);margin-left:2px;vertical-align:middle;animation:twb .78s ease-in-out infinite}
-@keyframes twb{0%,100%{opacity:1}50%{opacity:0}}
+    /* ── Touch devices: hide custom cursor ── */
+    @media(hover:none){
+      body { cursor:auto; }
+      #cursor,#cursor-ring { display:none; }
+    }
 
-@media(hover:none){body{cursor:auto}#cur,#crg{display:none}.bp,.bo,.tc,.pc,.gc{cursor:pointer}}
+    /* ── Tablet / small desktop ── */
+    @media(max-width:900px){
+      .hero-inner,.about-grid,.vi { grid-template-columns:1fr; gap:32px; }
+      .hero-visual { order:-1; display:flex; justify-content:center; }
+      .photo-main { width:min(300px,78vw); height:min(390px,100vw); margin:0 auto; }
+      .bd1,.bd2,.bd3,.bd4 { display:none; }
+      .hero-stats { justify-content:center; gap:20px; flex-wrap:wrap; }
+      .hero-btns  { justify-content:center; flex-wrap:wrap; }
+      .hero-text  { text-align:center; }
+      .hero-text .hero-desc { max-width:100%; margin:0 auto 28px; }
+      .hero-text .hero-badge { margin:0 auto 20px; }
+      .about-photo-wrap { order:-1; display:flex; justify-content:center; }
+      .about-bg-decor { right:-12px; }
+      .about-img { width:min(240px,70vw); height:min(320px,88vw); }
+      .about-bg-decor { width:min(240px,70vw); height:min(320px,88vw); }
+      .tl::before { left:20px; }
+      .tli { grid-template-columns:1fr; padding-left:48px; }
+      .tldot { left:20px; top:24px; transform:translate(-50%,0); }
+      .tlib { display:none; }
+      .nav-links { display:none; }
+      #mobile-nav { display:flex !important; }
+      #hero { padding-bottom:100px; }
+      section { padding:72px 5%; }
+      .sh { margin-bottom:40px; }
+      .gg { grid-template-columns:1fr 1fr; }
+      .pg { grid-template-columns:repeat(2,1fr); }
+    }
 
-@media(min-width:1400px){.hin{max-width:1280px}.agr,.tl,.vi{max-width:1180px}.pg,.gg{max-width:1220px}}
-@media(max-width:1100px){.pg{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){
-  .hin,.agr,.vi{grid-template-columns:1fr}
-  .hvis{order:-1}
-  .pw2{width:min(280px,80vw);height:min(375px,105vw);margin:0 auto}
-  .d1,.d2,.d3,.d4{display:none}
-  .hsts{justify-content:center;gap:18px}
-  .hbtns{justify-content:center}
-  .htext{text-align:center}
-  .hdesc{max-width:100%;margin:0 auto 36px}
-  .htag{margin:0 auto 20px}
-  .aps{width:min(260px,76vw);height:auto;margin:0 auto}
-  .aps img{width:min(240px,72vw);height:min(318px,86vw)}
-  .abg{width:min(240px,72vw);height:min(318px,86vw);right:-10px}
-  .tl::before{left:18px}
-  .tli{grid-template-columns:1fr;padding-left:46px}
-  .tdt{left:18px;top:16px;transform:translate(-50%,0)}
-  .tli:hover .tdt{transform:translate(-50%,0) scale(1.5)}
-  .tlib{display:none}
-  .pg{grid-template-columns:repeat(2,1fr)}
-  .gg{grid-template-columns:1fr 1fr}
-  .vi{gap:28px}.vqb{padding:28px 20px}
-  section{padding:72px 5%}
-  .sh{margin-bottom:46px}
-  .nlinks{display:none}
-  #mnav{display:flex !important}
-  #hero{padding-bottom:90px}}
-@media(max-width:600px){
-  #nav{padding:14px 5%}
-  section{padding:56px 4%}
-  #hero{padding:90px 4% 100px}
-  .hname{font-size:clamp(2.2rem,10vw,3rem)}
-  .hsts{gap:14px}.sn{font-size:1.75rem}
-  .hbtns{flex-direction:column;align-items:center}
-  .bp,.bo{width:100%;max-width:240px;text-align:center;padding:12px 0}
-  .tg{grid-template-columns:1fr 1fr}
-  .pg{grid-template-columns:1fr 1fr}
-  .gg{grid-template-columns:1fr}
-  .aq{font-size:1.25rem}.qt{font-size:1.2rem}
-  .vi{grid-template-columns:1fr}
-  .vqb{padding:24px 16px}.vqb::before{font-size:3.8rem}
-  .stt{font-size:clamp(1.7rem,7vw,2.3rem)}
-  .pc{padding:24px 16px}.sh{margin-bottom:36px}
-  .fn{font-size:1.85rem}
-  .pw2::after{display:none}
-  #mnav{bottom:14px;padding:8px 14px}
-  #mnav a{font-size:.54rem;padding:6px 8px}}
-@media(max-width:380px){
-  .hname{font-size:2rem}
-  .tg,.pg{grid-template-columns:1fr}
-  .hsts{gap:10px}.sn{font-size:1.5rem}
-  #mnav a{font-size:.48rem;padding:5px 6px}}
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  .rv,.rvl,.rvr{opacity:1!important;transform:none!important}}
+    /* ── Mobile ── */
+    @media(max-width:600px){
+      section { padding:60px 4%; }
+      #hero { padding:90px 4% 100px; }
+      .hero-name { font-size:clamp(2.2rem,10vw,3rem); }
+      .hero-title { font-size:.82rem; }
+      .hero-desc  { font-size:.9rem; }
+      .stat-num   { font-size:1.8rem; }
+      .hero-stats { gap:14px; }
+      .tg { grid-template-columns:1fr 1fr; }
+      .pg { grid-template-columns:1fr 1fr; }
+      .gg { grid-template-columns:1fr; }
+      .vi { grid-template-columns:1fr; gap:24px; }
+      .vqb { padding:28px 20px; }
+      .sh { margin-bottom:30px; }
+      .section-title { font-size:clamp(1.8rem,7vw,2.4rem); }
+      .qt { font-size:1.25rem; }
+      .aq { font-size:1.2rem; }
+      .fn { font-size:2rem; }
+      .btn-primary,.btn-outline { width:100%; max-width:240px; text-align:center; }
+      .hero-btns { flex-direction:column; align-items:center; }
+      #mobile-nav { bottom:14px; padding:8px 12px; }
+      #mobile-nav a { font-size:.52rem; padding:6px 8px; }
+    }
 
-</style>
+    /* ── XS phones ── */
+    @media(max-width:380px){
+      .hero-name { font-size:2rem; }
+      .tg,.pg { grid-template-columns:1fr; }
+      .hero-stats { gap:10px; }
+      #mobile-nav a { font-size:.46rem; padding:5px 6px; }
+    }
+
+    /* ── Reduce motion ── */
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+      .rv,.rvl,.rvr { opacity:1 !important; transform:none !important; }
+    }
+
+    /* ===== SAKURA PETALS ===== */
+    .petal-wrap { position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden; }
+    .petal {
+      position:absolute; top:-40px; border-radius:50% 0 50% 0;
+      opacity:0; animation:petalFall linear infinite;
+      background: linear-gradient(135deg, #f9c8d4, #f2a0b8);
+      box-shadow: 0 2px 6px rgba(232,130,160,0.3);
+    }
+    @keyframes petalFall {
+      0%   { transform:translateX(0) translateY(0) rotate(0deg); opacity:0; }
+      10%  { opacity:.9; }
+      90%  { opacity:.6; }
+      100% { transform:translateX(var(--drift)) translateY(110vh) rotate(var(--spin)); opacity:0; }
+    }
+
+    /* ===== FLOATING HEARTS BACKGROUND ===== */
+    .fheart { position:fixed;pointer-events:none;z-index:2;animation:heartRise linear forwards;font-size:1.2rem;opacity:0; }
+    @keyframes heartRise {
+      0%   { transform:translateY(0) scale(0); opacity:0; }
+      15%  { opacity:.8; transform:translateY(-30px) scale(1); }
+      80%  { opacity:.4; }
+      100% { transform:translateY(-220px) scale(0.6); opacity:0; }
+    }
+
+    /* ===== CURSOR SPARKLE ===== */
+    .sparkle {
+      position:fixed; pointer-events:none; z-index:9997;
+      width:8px; height:8px; border-radius:50%;
+      animation:sparklePop .6s ease-out forwards;
+    }
+    @keyframes sparklePop {
+      0%   { transform:translate(-50%,-50%) scale(1); opacity:1; }
+      100% { transform:translate(var(--sx),var(--sy)) scale(0); opacity:0; }
+    }
+
+    /* ===== CLICK HEART BURST ===== */
+    .click-heart {
+      position:fixed; pointer-events:none; z-index:9996;
+      font-size:1.4rem; animation:clickBurst .8s ease-out forwards;
+    }
+    @keyframes clickBurst {
+      0%   { transform:translate(-50%,-50%) scale(0); opacity:1; }
+      50%  { transform:translate(var(--hx),var(--hy)) scale(1.2); opacity:.9; }
+      100% { transform:translate(var(--hx2),var(--hy2)) scale(0); opacity:0; }
+    }
+
+    /* ===== COUNTER ===== */
+    .stat-num { transition:none; }
+
+    /* ===== TYPEWRITER ===== */
+    .tw-cursor { animation:twBlink .8s ease-in-out infinite; }
+    @keyframes twBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ===== GLITTER OVERLAY on photo ===== */
+    .photo-main::after {
+      content:''; position:absolute; inset:0; border-radius:28px;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,220,240,0.15) 40%,
+        rgba(255,255,255,0.25) 60%,
+        rgba(255,220,240,0) 100%);
+      background-size:200% 200%;
+      animation:glitterSheen 4s ease-in-out infinite;
+      pointer-events:none; z-index:3;
+    }
+    @keyframes glitterSheen {
+      0%,100%{ background-position:0% 0%; }
+      50%    { background-position:100% 100%; }
+    }
+
+    /* ===== LOVE PULSE on stats ===== */
+    .stat-item { transition:transform .3s; cursor:default; }
+    .stat-item:hover { transform:scale(1.15) translateY(-4px); }
+
+    /* ===== 3D TILT restored for all ===== */
+    .pc,.gc,.vqb { transition:transform .4s ease,box-shadow .4s ease; }
+
+    /* ===== SECTION GRADIENT ACCENT ===== */
+    #about::before,#journey::before,#vibes::before {
+      content:''; position:absolute;
+      width:400px; height:400px; border-radius:50%;
+      background:radial-gradient(circle, rgba(232,164,184,.12) 0%, transparent 70%);
+      pointer-events:none; z-index:0;
+    }
+    #about::before { top:-100px; right:-100px; }
+    #journey::before { bottom:-100px; left:-100px; }
+    #vibes::before { top:50%; right:-80px; transform:translateY(-50%); }
+
+    /* Responsive: reduce petal count on mobile */
+    @media(max-width:600px){
+      .petal:nth-child(n+8){ display:none; }
+      .photo-main::after { display:none; }
+    }
+
+    /* ── MOBILE BOTTOM PILL NAV ── */
+    #mobile-nav {
+      position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+      z-index:500; display:none; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-radius:60px; padding:10px 16px;
+      box-shadow:0 8px 32px rgba(180,100,140,.22), 0 0 0 1px rgba(232,164,184,.28);
+      gap:0;
+    }
+    #mobile-nav a {
+      font-size:.56rem; letter-spacing:1.4px; text-transform:uppercase;
+      color:#6b5070; text-decoration:none; font-weight:600;
+      padding:7px 9px; border-radius:50px;
+      transition:color .2s, background .2s, transform .45s cubic-bezier(.34,1.82,.64,1);
+      white-space:nowrap; will-change:transform; display:inline-block;
+    }
+    #mobile-nav a.mob-active { color:#c47a92; background:rgba(232,164,184,.15); }
+
+    /* ===== SWEET AMBIENT AURORA BACKGROUND ===== */
+    #ambient-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .aurora-orb {
+      position: absolute; border-radius: 50%; filter: blur(75px); opacity: 0.48;
+      will-change: transform; transform: translate3d(0,0,0);
+      animation: auroraMorph 18s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: min(520px, 80vw); height: min(520px, 80vw);
+      background: radial-gradient(circle, rgba(247,178,198,0.7) 0%, rgba(253,240,243,0) 70%);
+      top: -8%; right: -5%;
+      animation-duration: 16s;
+    }
+    .orb-2 {
+      width: min(460px, 75vw); height: min(460px, 75vw);
+      background: radial-gradient(circle, rgba(216,180,230,0.65) 0%, rgba(250,245,255,0) 70%);
+      top: 32%; left: -10%;
+      animation-duration: 22s; animation-delay: -5s;
+    }
+    .orb-3 {
+      width: min(500px, 78vw); height: min(500px, 78vw);
+      background: radial-gradient(circle, rgba(255,212,176,0.65) 0%, rgba(254,248,243,0) 70%);
+      top: 65%; right: -8%;
+      animation-duration: 19s; animation-delay: -9s;
+    }
+    .orb-4 {
+      width: min(420px, 70vw); height: min(420px, 70vw);
+      background: radial-gradient(circle, rgba(198,222,248,0.55) 0%, rgba(245,250,255,0) 70%);
+      bottom: -6%; left: 8%;
+      animation-duration: 24s; animation-delay: -14s;
+    }
+    @keyframes auroraMorph {
+      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      33%  { transform: translate3d(30px, -25px, 0) scale(1.08) rotate(40deg); }
+      66%  { transform: translate3d(-20px, 35px, 0) scale(0.95) rotate(-30deg); }
+      100% { transform: translate3d(25px, 15px, 0) scale(1.05) rotate(20deg); }
+    }
+
+    /* Ambient Floating Fairy Sparkles */
+    .fairy-sparkle {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, #fff 10%, rgba(232,164,184,0.9) 60%, transparent 100%);
+      box-shadow: 0 0 10px rgba(232,164,184,0.8), 0 0 20px rgba(201,148,106,0.5);
+      animation: sparkleFloat linear infinite;
+    }
+    @keyframes sparkleFloat {
+      0%   { transform: translateY(105vh) scale(0.4); opacity: 0; }
+      20%  { opacity: 0.85; transform: translateY(80vh) scale(1); }
+      80%  { opacity: 0.85; transform: translateY(20vh) scale(0.9); }
+      100% { transform: translateY(-5vh) scale(0.3); opacity: 0; }
+    }
+
+    /* ===== ULTRA-SMOOTH 3D TILT STYLING ===== */
+    .tilt-card {
+      position: relative;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.65s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.65s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .tilt-glare {
+      position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 65%);
+      opacity: 0; transition: opacity 0.4s ease;
+      mix-blend-mode: overlay; z-index: 5;
+    }
+    .tilt-card:hover .tilt-glare { opacity: 1; }
+
+    /* MOBILE: Continuous 3D Breathing Animation */
+    @media (max-width: 900px), (hover: none) {
+      .tilt-card {
+        animation: mobile3dBreathe 6s ease-in-out infinite alternate !important;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      }
+      .pc:nth-child(odd)  { animation-delay: 0s !important; }
+      .pc:nth-child(even) { animation-delay: 1.5s !important; }
+      .gc:nth-child(1)    { animation-delay: 0.3s !important; }
+      .gc:nth-child(2)    { animation-delay: 1.8s !important; }
+      .gc:nth-child(3)    { animation-delay: 0.9s !important; }
+      .vqb                { animation-delay: 1.2s !important; }
+      .photo-main         { animation: heroBreathe 5s ease-in-out infinite alternate !important; }
+
+      .tilt-card:active {
+        transform: scale(0.96) translateY(-2px) !important;
+      }
+    }
+
+    @keyframes mobile3dBreathe {
+      0%   { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+      50%  { transform: translateY(-7px) rotateX(1.8deg) rotateY(-1.2deg); box-shadow: 0 24px 50px rgba(180,100,140,0.22); }
+      100% { transform: translateY(-2px) rotateX(-1.2deg) rotateY(1.5deg); }
+    }
+    @keyframes heroBreathe {
+      0%   { transform: translateY(0) scale(1) rotate(0deg); }
+      50%  { transform: translateY(-9px) scale(1.018) rotate(0.8deg); }
+      100% { transform: translateY(0) scale(1) rotate(0deg); }
+    }
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-<div id="ldr"><div class="ln">VAANI</div><div class="ls">My Universe</div><div class="lt"><div class="lb" id="lb"></div></div></div>
-<canvas id="bgc"></canvas>
-<div id="cur"></div><div id="crg"></div>
-<div class="pw" id="pw"></div>
-<nav id="nav">
-  <a class="nlogo" href="#">Dr. <span>Vaani</span></a>
-  <ul class="nlinks"><li><a href="#about">About</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#journey">Journey</a></li><li><a href="#personality">Soul</a></li><li><a href="#vibes">Vibes</a></li></ul>
-</nav>
-<nav id="mnav"><a href="#hero">Home</a><a href="#about">About</a><a href="#gallery">Gallery</a><a href="#journey">Journey</a><a href="#personality">Soul</a><a href="#vibes">Vibes</a></nav>
-<div class="wrap">
-<section id="hero">
-<div style="position:absolute;inset:0;z-index:0;pointer-events:none"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-<div class="hin">
-<div class="htext">
-<div class="htag">Doctor &middot; Dubai Born &middot; Indian Soul</div>
-<h1 class="hname">Dr. <span class="hl" id="vname">Vaani</span></h1>
-<div class="httl" id="httl"></div>
-<p class="hdesc">I heal with compassion and inspire with my presence. Born under Dubai's golden skyline, rooted in India's rich soul &mdash; I am that blend of grace, curiosity, and fearless warmth I've always been proud of.</p>
-<div class="hsts">
-<div class="sit"><div class="sn">5'1&quot;</div><div class="sl">Small, Mighty</div></div>
-<div class="sit"><div class="sn">🇦🇪</div><div class="sl">Dubai Born</div></div>
-<div class="sit"><div class="sn">🧪</div><div class="sl">Doctor</div></div>
-<div class="sit"><div class="sn">❤️</div><div class="sl">Married</div></div>
-</div>
-<div class="hbtns"><a href="#about" class="bp">My Story</a><a href="#gallery" class="bo">Gallery</a></div>
-</div>
-<div class="hvis"><div class="pw2" id="hph">
-<div class="pg2"></div>
-<img src="photo1.jpg" alt="Dr. Vaani" loading="eager" onerror="this.parentNode.style.background='linear-gradient(135deg,#f9ede6,#e8a4b8)';this.style.display='none'"/>
-<div class="fb d1"><div class="bi">🧪</div><div class="bt">Medical Doctor<small>MBBS &middot; Pursuing PG</small></div></div>
-<div class="fb d2"><div class="bi">🌎</div><div class="bt">Born in Dubai<small>Indian at Heart</small></div></div>
-<div class="fb d3"><div class="bi">💍</div><div class="bt">Happily Married</div></div>
-<div class="fb d4"><div class="bi">🏥</div><div class="bt">NMC Royal Hospital<small>Dubai Silicon Oasis</small></div></div>
-</div></div></div></section>
-<section id="about">
-<div class="sh rv"><span class="stg">A Little About Me</span><h2 class="stt">Beyond the White Coat</h2><div class="sl2"></div></div>
-<div class="agr">
-<div style="display:flex;justify-content:center" class="rvl"><div class="aps"><div class="abg"></div>
-<img src="photo2.jpg" alt="Vaani" loading="lazy" onerror="this.style.cssText='background:linear-gradient(135deg,#d4b8e0,#f2c4a4);display:block;width:258px;height:342px;border-radius:20px'"/>
-</div></div>
-<div class="rvr">
-<blockquote class="aq">&ldquo;I'm not just healing bodies &mdash; I'm collecting experiences, chasing knowledge, and living unapologetically.&rdquo;</blockquote>
-<p class="at">I grew up breathing Dubai's cosmopolitan air &mdash; where East meets West every single day. That upbringing gave me an open mind, a global perspective, and warmth I carry everywhere. I work at <strong>NMC Royal Hospital, Dubai Silicon Oasis</strong>, still pursuing my PG. Medicine, marriage, the gym &mdash; and the million little things that make me, <em>me</em>.</p>
-<div class="tg">
-<div class="tc">🌸 Open-Minded</div>
-<div class="tc">📚 Lifelong Learner</div>
-<div class="tc">🌎 World Citizen</div>
-<div class="tc">💎 Deeply Indian</div>
-<div class="tc">🏥 Healer by Nature</div>
-<div class="tc">✨ Effortlessly Elegant</div>
-<div class="tc">🯍 Forgiving Soul</div>
-<div class="tc">🏋 Fitness Freak</div>
-</div></div></div></section>
-<section id="gallery">
-<div class="sh rv"><span class="stg">A Little of Me</span><h2 class="stt">A Glimpse into My World</h2><div class="sl2"></div></div>
-<div class="gg">
-<div class="gc rv"><img src="photo1.jpg" alt="Vaani" loading="lazy" onerror="this.parentNode.style.background='linear-gradient(135deg,#f9ede6,#e8a4b8)';this.style.display='none'"/><div class="gco"><div class="got">Grace in simplicity</div></div></div>
-<div class="gc rv" style="transition-delay:.13s"><img src="photo2.jpg" alt="Vaani" loading="lazy" onerror="this.parentNode.style.background='linear-gradient(135deg,#d4b8e0,#f2c4a4)';this.style.display='none'"/><div class="gco"><div class="got">Quiet confidence</div></div></div>
-<div class="gc rv" style="transition-delay:.26s"><div style="width:100%;height:100%;background:linear-gradient(135deg,#fdf3ee,#e8d4f0,#f9ede6);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;padding:36px;text-align:center"><div style="font-size:3.6rem;margin-bottom:16px">🌙</div><div style="font-size:1.65rem;color:var(--pl);font-style:italic;margin-bottom:10px">&ldquo;Some people shine so bright the whole room feels it.&rdquo;</div><div style="font-size:.76rem;letter-spacing:2px;color:var(--rd)">&mdash; DR. VAANI</div></div><div class="gco"><div class="got">My aura speaks first</div></div></div>
-</div></section>
-<section id="journey">
-<div class="sh rv"><span class="stg">My Journey</span><h2 class="stt">How I Became a Doctor</h2><div class="sl2"></div></div>
-<div class="tl">
-<div class="tli"><div class="tlc rvl"><div class="tyr">Chapter 1 &middot; Dubai</div><h3 class="tlh">Born in Gold &amp; Sunlight</h3><p class="tld">The UAE raised me &mdash; gleaming towers, fearless energy, a blend of cultures unlike anywhere else. Growing up in Dubai made me comfortable everywhere. The best foundation I could've asked for.</p></div>
-<div class="rvr"><div class="tlib">🇦🇪</div></div><div class="tdt"></div></div>
-<div class="tli"><div class="tlc rvr"><div class="tyr">Chapter 2 &middot; Roots</div><h3 class="tlh">An Indian Soul, Always</h3><p class="tld">No matter how cosmopolitan I am, my Indian roots run deep. I love my festivals, traditions, that bond only an Indian upbringing gives you. Both identities are mine and I wear them with pride.</p></div>
-<div class="rvl"><div class="tlib">🇮🇳</div></div><div class="tdt"></div></div>
-<div class="tli"><div class="tlc rvl"><div class="tyr">Chapter 3 &middot; Medicine</div><h3 class="tlh">I Chose to Heal</h3><p class="tld">Medicine wasn't a career choice &mdash; it was a calling. I picked up my stethoscope, learned the language of the body &mdash; and I'd do it all again. Currently at NMC Royal Hospital, Dubai Silicon Oasis. Always learning.</p></div>
-<div class="rvr"><div class="tlib">🧪</div></div><div class="tdt"></div></div>
-<div class="tli"><div class="tlc rvr"><div class="tyr">Chapter 4 &middot; Love</div><h3 class="tlh">I Found My Person</h3><p class="tld">Balancing medicine with the warmth of love &mdash; I found someone who makes it all worth it. I'm married, loved, and still wildly and unapologetically myself.</p></div>
-<div class="rvl"><div class="tlib">💍</div></div><div class="tdt"></div></div>
-<div class="tli"><div class="tlc rvl"><div class="tyr">Chapter 5 &middot; Now</div><h3 class="tlh">Still Writing My Story</h3><p class="tld">Textbooks open, dreams wide awake, gym shoes ready. Every patient, every exam, every workout &mdash; it's all part of becoming the doctor I always knew I was meant to be.</p></div>
-<div class="rvr"><div class="tlib">🌟</div></div><div class="tdt"></div></div>
-</div></section>
-<section id="personality">
-<div class="sh rv"><span class="stg">Who I Am</span><h2 class="stt">The Many Sides of Me</h2><div class="sl2"></div></div>
-<div class="pg">
-<div class="pc rv"><div class="pci">🌊</div><h3 class="pct">Open Mind</h3><p class="pcd">I don't just accept different &mdash; I celebrate it. My worldview has no borders. Curiosity always beats judgment.</p></div>
-<div class="pc rv" style="transition-delay:0.07s"><div class="pci" style="background:linear-gradient(135deg,#d4b8e0,#c8dff5)">🎓</div><h3 class="pct">Scholar at Heart</h3><p class="pcd">Medicine demands everything &mdash; and I give it gladly. Always studying, always questioning. Learning is my happy place.</p></div>
-<div class="pc rv" style="transition-delay:0.14s"><div class="pci" style="background:linear-gradient(135deg,#f2c4a4,#e8c49a)">🔥</div><h3 class="pct">Quietly Fierce</h3><p class="pcd">5'1&quot; &mdash; yes, petite. But there's a fire in me that surprises people. Calm outside, unstoppable inside.</p></div>
-<div class="pc rv" style="transition-delay:0.21s"><div class="pci" style="background:linear-gradient(135deg,#c8dff5,#d4b8e0)">🌸</div><h3 class="pct">Warmth Personified</h3><p class="pcd">Whether it's a patient, a friend, or a stranger &mdash; I genuinely care. I want people to feel seen around me.</p></div>
-<div class="pc rv" style="transition-delay:0.28s"><div class="pci" style="background:linear-gradient(135deg,#e8a4b8,#d4b8e0)">🌎</div><h3 class="pct">Global Soul</h3><p class="pcd">Dubai made me cosmopolitan, India grounded me deep. The world is my home &mdash; navigated with quiet confidence.</p></div>
-<div class="pc rv" style="transition-delay:0.35s"><div class="pci" style="background:linear-gradient(135deg,#e8c49a,#f2c4a4)">💎</div><h3 class="pct">Effortless Grace</h3><p class="pcd">I don't try to be elegant &mdash; I just am. The way I carry myself turns heads. I'll gladly take that compliment.</p></div>
-<div class="pc rv" style="transition-delay:0.42s"><div class="pci" style="background:linear-gradient(135deg,#d4b8e0,#e8a4b8)">🯍</div><h3 class="pct">Forgiving Soul</h3><p class="pcd">I forgive easily &mdash; genuinely. My heart's too full for grudges. Life is short. Let go and keep going.</p></div>
-<div class="pc rv" style="transition-delay:0.49s"><div class="pci" style="background:linear-gradient(135deg,#c8dff5,#f2c4a4)">🏋</div><h3 class="pct">Fitness Freak</h3><p class="pcd">The gym is my therapy. I love the discipline, the sweat, the results. A workout always clears my head after a long shift.</p></div>
-</div></section>
-<section id="vibes">
-<div class="sh rv"><span class="stg">My Universe</span><h2 class="stt">Little Things About Me</h2><div class="sl2"></div></div>
-<div class="vi">
-<ul class="vl rvl">
-<li><span class="vic">☕</span><div class="vtx"><strong>Tea or Coffee?</strong><span>I survive hospital shifts on it. I know exactly how I like my cup and I will not compromise.</span></div></li>
-<li><span class="vic">🏋</span><div class="vtx"><strong>Gym is Therapy</strong><span>After long shifts, the gym resets me. Discipline, focus, progress. Fitness is a lifestyle, not a phase.</span></div></li>
-<li><span class="vic">🏥</span><div class="vtx"><strong>NMC Royal Hospital</strong><span>Dubai Silicon Oasis &mdash; where I show up every day and give my best to every patient.</span></div></li>
-<li><span class="vic">📚</span><div class="vtx"><strong>Always Reading</strong><span>Medical textbooks by day, something different by night. My mind never clocks out.</span></div></li>
-<li><span class="vic">🎵</span><div class="vtx"><strong>Music for Every Mood</strong><span>Bollywood one minute, international the next. My playlist is as layered as I am.</span></div></li>
-<li><span class="vic">🌙</span><div class="vtx"><strong>Night Owl Energy</strong><span>Late nights are my time &mdash; books, thoughts, silence. Best thinking when the world sleeps.</span></div></li>
-<li><span class="vic">🯍</span><div class="vtx"><strong>Forgiving by Nature</strong><span>I forgive easily and mean it. My heart's too full to carry grudges. Let go, keep moving.</span></div></li>
-</ul>
-<div class="vqb rvr"><p class="qt">&ldquo;I'm a healer, a learner, a gym lover, a lover of life &mdash; wrapped in the warmth of India and raised on Dubai's golden dreams. This is me.&rdquo;</p><div class="qa">✦ Dr. Vaani ✦</div></div>
-</div></section>
-<footer><div class="fn">Dr. Vaani</div><div class="ft">Physician &middot; Scholar &middot; Fitness Freak &middot; Dubai Born &middot; Indian Soul</div><div class="fd"></div><div class="fc">Made with love ✦ My Universe</div></footer>
+
+<!-- SWEET AMBIENT AURORA & SPARKLES BACKGROUND -->
+<div id="ambient-bg">
+  <div class="aurora-orb orb-1"></div>
+  <div class="aurora-orb orb-2"></div>
+  <div class="aurora-orb orb-3"></div>
+  <div class="aurora-orb orb-4"></div>
+  <div id="sparkle-container"></div>
 </div>
 
+<div class="petal-wrap" id="petalWrap"></div>
+<div id="loader"><div class="loader-name">VAANI</div><div class="loader-bar"><div class="loader-fill"></div></div></div>
+<canvas id="bg-canvas"></canvas>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="wrapper">
+
+<nav id="nav">
+  <div class="nav-logo">Dr. <span>Vaani</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#journey">Journey</a></li>
+    <li><a href="#personality">Soul</a></li>
+    <li><a href="#vibes">Vibes</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-tag">Doctor &middot; Dubai Born &middot; Indian Soul</div>
+      <h1 class="hero-name">Dr. <span class="hl">Vaani</span></h1>
+      <div class="hero-title">Physician &middot; Scholar &middot; Free Spirit</div>
+      <p class="hero-desc">A woman who heals with her hands and inspires with her heart. Born under Dubai's golden skyline, rooted in India's rich soul &mdash; Vaani is that rare blend of grace, intelligence, and fearless warmth.</p>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">5'1"</div><div class="stat-label">Small, Mighty</div></div>
+        <div class="stat-item"><div class="stat-num">&#127462;&#127466;</div><div class="stat-label">Dubai Born</div></div>
+        <div class="stat-item"><div class="stat-num">&#129514;</div><div class="stat-label">Doctor</div></div>
+        <div class="stat-item"><div class="stat-num">&#10084;&#65039;</div><div class="stat-label">Married</div></div>
+      </div>
+      <div class="hero-btns">
+        <a href="#about" class="btn-p">Her Story</a>
+        <a href="#gallery" class="btn-o">Gallery</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="tilt-card photo-main" id="hphoto">
+        <div class="photo-glow"></div>
+        <img src="photo1.jpg" alt="Dr. Vaani" onerror="this.parentNode.style.background='linear-gradient(135deg,#f9ede6,#e8a4b8)';this.style.display='none'" />
+        <div class="fbadge bd1"><div class="bi">&#129514;</div><div class="bt">Medical Doctor <small>MBBS &middot; Pursuing PG</small></div></div>
+        <div class="fbadge bd2"><div class="bi">&#127758;</div><div class="bt">Born in Dubai <small>Indian at Heart</small></div></div>
+        <div class="fbadge bd3"><div class="bi">&#128141;</div><div class="bt">Happily Married</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="sh rv">
+    <span class="stag">Her Essence</span>
+    <h2 class="stitle">Beyond the White Coat</h2>
+    <div class="sline"></div>
+  </div>
+  <div class="about-grid">
+    <div style="display:flex;justify-content:center" class="rvl">
+      <div class="tilt-card aps">
+        <div class="apbg"></div>
+        <img src="photo2.jpg" alt="Vaani" onerror="this.style.cssText='background:linear-gradient(135deg,#d4b8e0,#f2c4a4);display:block;width:280px;height:370px;border-radius:24px'" />
+      </div>
+    </div>
+    <div class="rvr">
+      <blockquote class="aq">"She is not just healing bodies &mdash; she's collecting experiences, chasing knowledge, and living unapologetically."</blockquote>
+      <p class="at">Vaani grew up breathing Dubai's cosmopolitan air &mdash; where East meets West every single day. That upbringing gave her an open mind, a global perspective, and a warmth that transcends cultures. Now, draped in her stethoscope and still deep in the pursuit of medical excellence, she balances a full life &mdash; medicine, marriage, and the million little things that make her, <em>her</em>.</p>
+      <div class="tg">
+        <div class="tc">&#127800; Open-Minded</div>
+        <div class="tc">&#128218; Lifelong Learner</div>
+        <div class="tc">&#127758; World Citizen</div>
+        <div class="tc">&#128142; Deeply Indian</div>
+        <div class="tc">&#127973; Healer by Nature</div>
+        <div class="tc">&#10024; Effortlessly Elegant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="sh rv">
+    <span class="stag">Frames of Her</span>
+    <h2 class="stitle">A Glimpse into Her World</h2>
+    <div class="sline"></div>
+  </div>
+  <div class="gg">
+    <div class="tilt-card gc rv">
+      <img src="photo1.jpg" alt="Vaani" onerror="this.parentNode.style.background='linear-gradient(135deg,#f9ede6,#e8a4b8)';this.style.display='none'" />
+      <div class="gco"><div class="got">Grace in simplicity</div></div>
+    </div>
+    <div class="tilt-card gc rv" style="transition-delay:.15s">
+      <img src="photo2.jpg" alt="Vaani" onerror="this.parentNode.style.background='linear-gradient(135deg,#d4b8e0,#f2c4a4)';this.style.display='none'" />
+      <div class="gco"><div class="got">Quiet confidence</div></div>
+    </div>
+    <div class="tilt-card gc rv" style="transition-delay:.3s">
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#fdf3ee,#e8d4f0,#f9ede6);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;padding:40px;text-align:center">
+        <div style="font-size:4rem;margin-bottom:20px">&#127769;</div>
+        <div style="font-size:1.8rem;color:var(--plum);font-style:italic;margin-bottom:12px">"Some people shine so bright that the whole room feels it."</div>
+        <div style="font-size:.8rem;letter-spacing:2px;color:var(--rose-deep)">&mdash; DR. VAANI</div>
+      </div>
+      <div class="gco"><div class="got">Her aura speaks first</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="journey">
+  <div class="sh rv">
+    <span class="stag">Her Timeline</span>
+    <h2 class="stitle">The Making of a Doctor</h2>
+    <div class="sline"></div>
+  </div>
+  <div class="tl">
+    <div class="tli">
+      <div class="tlc rvl">
+        <div class="tlyear">Chapter 1 &middot; Dubai</div>
+        <h3 class="tlh">Born in Gold &amp; Sunlight</h3>
+        <p class="tld">The UAE raised her &mdash; its gleaming towers, its mix of cultures, its fearless energy. Growing up in Dubai shaped her into someone comfortable everywhere and at home in herself.</p>
+      </div>
+      <div class="rvr"><div class="tlib">&#127462;&#127466;</div></div>
+      <div class="tldot"></div>
+    </div>
+    <div class="tli">
+      <div class="tlc rvr">
+        <div class="tlyear">Chapter 2 &middot; Roots</div>
+        <h3 class="tlh">An Indian Soul, Always</h3>
+        <p class="tld">Beneath the Dubai glamour lived a deeply Indian heart &mdash; one that knows the joy of festivals, the depth of family bonds, and the beauty of traditions.</p>
+      </div>
+      <div class="rvl"><div class="tlib">&#127470;&#127475;</div></div>
+      <div class="tldot"></div>
+    </div>
+    <div class="tli">
+      <div class="tlc rvl">
+        <div class="tlyear">Chapter 3 &middot; Medicine</div>
+        <h3 class="tlh">She Chose to Heal</h3>
+        <p class="tld">Medicine wasn't just a career choice &mdash; it was a calling. Picking up the stethoscope, learning the language of the body, standing in wards at ungodly hours &mdash; she did it all.</p>
+      </div>
+      <div class="rvr"><div class="tlib">&#129514;</div></div>
+      <div class="tldot"></div>
+    </div>
+    <div class="tli">
+      <div class="tlc rvr">
+        <div class="tlyear">Chapter 4 &middot; Love</div>
+        <h3 class="tlh">Found Her Person</h3>
+        <p class="tld">Balancing the weight of medicine and the warmth of love &mdash; she built a home within a relationship that completes her. Married, loved, and still wildly herself.</p>
+      </div>
+      <div class="rvl"><div class="tlib">&#128141;</div></div>
+      <div class="tldot"></div>
+    </div>
+    <div class="tli">
+      <div class="tlc rvl">
+        <div class="tlyear">Chapter 5 &middot; Now</div>
+        <h3 class="tlh">Still Writing Her Story</h3>
+        <p class="tld">With textbooks open and dreams wide awake, she continues her medical journey. Each page she turns, each patient she meets &mdash; all part of becoming the doctor she was always meant to be.</p>
+      </div>
+      <div class="rvr"><div class="tlib">&#127775;</div></div>
+      <div class="tldot"></div>
+    </div>
+  </div>
+</section>
+
+<section id="personality">
+  <div class="sh rv">
+    <span class="stag">Who She Is</span>
+    <h2 class="stitle">The Many Shades of Vaani</h2>
+    <div class="sline"></div>
+  </div>
+  <div class="pg">
+    <div class="tilt-card pc rv"><div class="pci">&#127754;</div><h3 class="pct">Open Mind</h3><p class="pcd">She doesn't just accept different &mdash; she celebrates it. Her worldview has no borders, shaped by a life between cultures and genuine curiosity.</p></div>
+    <div class="tilt-card pc rv" style="transition-delay:.1s"><div class="pci" style="background:linear-gradient(135deg,#d4b8e0,#c8dff5)">&#127891;</div><h3 class="pct">Scholar at Heart</h3><p class="pcd">Medicine demands everything &mdash; and she gives it gladly. Always studying, always questioning, always pushing the edge of what she knows.</p></div>
+    <div class="tilt-card pc rv" style="transition-delay:.2s"><div class="pci" style="background:linear-gradient(135deg,#f2c4a4,#e8c49a)">&#128293;</div><h3 class="pct">Quietly Fierce</h3><p class="pcd">She's petite at 5'1" but don't let that fool you. There's a fire inside her that could light up the whole room &mdash; calm on the surface, unstoppable underneath.</p></div>
+    <div class="tilt-card pc rv" style="transition-delay:.3s"><div class="pci" style="background:linear-gradient(135deg,#c8dff5,#d4b8e0)">&#127800;</div><h3 class="pct">Warmth Personified</h3><p class="pcd">Whether it's a patient, a friend, or a stranger &mdash; people feel seen around Vaani. Her empathy isn't practiced; it's simply who she is.</p></div>
+    <div class="tilt-card pc rv" style="transition-delay:.4s"><div class="pci" style="background:linear-gradient(135deg,#e8a4b8,#d4b8e0)">&#127758;</div><h3 class="pct">Global Soul</h3><p class="pcd">Dubai raised her cosmopolitan. India grounded her deep. The world is her home and she navigates it with ease and quiet confidence.</p></div>
+    <div class="tilt-card pc rv" style="transition-delay:.5s"><div class="pci" style="background:linear-gradient(135deg,#e8c49a,#f2c4a4)">&#128142;</div><h3 class="pct">Effortless Grace</h3><p class="pcd">She doesn't try to be elegant &mdash; she just is. There's something about the way she carries herself that turns heads and softens hearts.</p></div>
+  </div>
+</section>
+
+<section id="vibes">
+  <div class="sh rv">
+    <span class="stag">Her Universe</span>
+    <h2 class="stitle">Little Things About Vaani</h2>
+    <div class="sline"></div>
+  </div>
+  <div class="vi">
+    <ul class="vl rvl">
+      <li><span class="vic">&#9749;</span><div class="vtx"><strong>Tea or Coffee?</strong><span>Someone who survives long hospital shifts &mdash; knows exactly how she likes her cup.</span></div></li>
+      <li><span class="vic">&#128218;</span><div class="vtx"><strong>Always Reading</strong><span>Medical textbooks by day, maybe something entirely different by night. A mind that never fully clocks out.</span></div></li>
+      <li><span class="vic">&#127925;</span><div class="vtx"><strong>Music for Every Mood</strong><span>From Bollywood classics to international playlists &mdash; her taste is as layered as she is.</span></div></li>
+      <li><span class="vic">&#127769;</span><div class="vtx"><strong>Night Owl Energy</strong><span>Late nights with books and thoughts &mdash; she does her best thinking when the world is asleep.</span></div></li>
+      <li><span class="vic">&#127866;</span><div class="vtx"><strong>Naturally Beautiful</strong><span>5'1" of pure elegance &mdash; there's something timeless about her that no filter could improve.</span></div></li>
+    </ul>
+    <div class="tilt-card vqb rvr">
+      <p class="qt">"She's a healer, a learner, a lover of life &mdash; wrapped in the warmth of India and raised on Dubai's golden dreams."</p>
+      <div class="qa">&#10022; Dr. Vaani &#10022;</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fn">Dr. Vaani</div>
+  <div class="ft">Physician &middot; Scholar &middot; Free Spirit &middot; Dubai Born &middot; Indian Soul</div>
+  <div class="fd"></div>
+  <div class="fc">Made with love &#10022; Her Universe</div>
+</footer>
+
+
+</div><!-- /.wrapper -->
+
 <script>
-(function(){
-'use strict';
-var lb=document.getElementById('lb'),done=false;
-function hide(){if(done)return;done=true;if(lb)lb.style.width='100%';setTimeout(function(){var l=document.getElementById('ldr');if(l)l.classList.add('out');},360);}
-/* Hard 3s guarantee — loader NEVER gets stuck */
-setTimeout(hide,3000);
-document.addEventListener('DOMContentLoaded',function(){setTimeout(hide,800);});
-if(lb){var xhr=new XMLHttpRequest();xhr.open('GET','photo1.jpg',true);xhr.responseType='blob';xhr.onprogress=function(e){if(e.lengthComputable)lb.style.width=Math.min((e.loaded/e.total)*94,94)+'%';};xhr.onload=hide;xhr.onerror=hide;xhr.onabort=hide;xhr.send();}
-window.addEventListener('load',function(){setTimeout(hide,300);});
-var isT=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-var cur=document.getElementById('cur'),crg=document.getElementById('crg');
-var tx=0,ty=0,rx=0,ry=0;
-if(!isT&&cur&&crg){
-  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;cur.style.left=tx+'px';cur.style.top=ty+'px';},{passive:true});
-  (function rf(){rx+=(tx-rx)*.11;ry+=(ty-ry)*.11;crg.style.left=rx+'px';crg.style.top=ry+'px';requestAnimationFrame(rf);})();
-  document.querySelectorAll('a,.pc,.gc,.tc,.bp,.bo,.sit').forEach(function(el){
-    el.addEventListener('mouseenter',function(){cur.style.width='20px';cur.style.height='20px';cur.style.background='var(--go)';crg.style.width='52px';crg.style.height='52px';crg.style.borderColor='var(--go)';});
-    el.addEventListener('mouseleave',function(){cur.style.width='12px';cur.style.height='12px';cur.style.background='var(--rd)';crg.style.width='34px';crg.style.height='34px';crg.style.borderColor='var(--rd)';});
+/* ===== CORE HELPERS & SAFE INITIALIZATION ===== */
+var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth <= 800;
+
+// Hide loader safely
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    var l = document.getElementById('loader');
+    if (l) l.classList.add('hidden');
+  }, 1200);
+});
+setTimeout(function(){
+  var l = document.getElementById('loader');
+  if (l) l.classList.add('hidden');
+}, 3200);
+
+/* ===== CUSTOM MOUSE CURSOR (Desktop only) ===== */
+if (!isTouch) {
+  var cur = document.getElementById('cursor'), ring = document.getElementById('cursor-ring');
+  var mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    if (cur) { cur.style.left = mx + 'px'; cur.style.top = my + 'px'; }
+  });
+  (function animCursor(){
+    rx += (mx - rx) * 0.16;
+    ry += (my - ry) * 0.16;
+    if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; }
+    requestAnimationFrame(animCursor);
+  })();
+
+  document.querySelectorAll('a, button, .tilt-card, .tc').forEach(function(el){
+    el.addEventListener('mouseenter', function(){
+      if (cur) { cur.style.width = '24px'; cur.style.height = '24px'; }
+      if (ring) { ring.style.width = '64px'; ring.style.height = '64px'; ring.style.borderColor = '#c9946a'; }
+    });
+    el.addEventListener('mouseleave', function(){
+      if (cur) { cur.style.width = '14px'; cur.style.height = '14px'; }
+      if (ring) { ring.style.width = '40px'; ring.style.height = '40px'; ring.style.borderColor = '#c47a92'; }
+    });
   });
 }
-(function(){
-  var c=document.getElementById('bgc');if(!c||typeof THREE==='undefined')return;
-  var mob=window.innerWidth<768;
-  var r=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:!mob,powerPreference:'high-performance'});
-  r.setPixelRatio(Math.min(window.devicePixelRatio,mob?1:2));r.setSize(window.innerWidth,window.innerHeight);
-  var sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,1000);cam.position.z=40;
-  var cnt=mob?60:220,geo=new THREE.BufferGeometry(),ps=new Float32Array(cnt*3),cs=new Float32Array(cnt*3);
-  var pal=['#e8a4b8','#d4b8e0','#f2c4a4','#c9946a','#c8dff5'].map(function(c){return new THREE.Color(c);});
-  for(var i=0;i<cnt;i++){ps[i*3]=(Math.random()-.5)*110;ps[i*3+1]=(Math.random()-.5)*110;ps[i*3+2]=(Math.random()-.5)*75;var cl=pal[Math.floor(Math.random()*pal.length)];cs[i*3]=cl.r;cs[i*3+1]=cl.g;cs[i*3+2]=cl.b;}
-  geo.setAttribute('position',new THREE.BufferAttribute(ps,3));geo.setAttribute('color',new THREE.BufferAttribute(cs,3));
-  var pts=new THREE.Points(geo,new THREE.PointsMaterial({size:.58,vertexColors:true,transparent:true,opacity:.48}));sc.add(pts);
-  var rings=[];['#e8a4b8','#d4b8e0','#f2c4a4'].forEach(function(col,i){var rng=new THREE.Mesh(new THREE.TorusGeometry(6+i*4,.04,8,60),new THREE.MeshBasicMaterial({color:new THREE.Color(col),transparent:true,opacity:.2}));rng.rotation.x=Math.random()*Math.PI;rng.rotation.y=Math.random()*Math.PI;rng.position.set((Math.random()-.5)*20,(Math.random()-.5)*20,-20);sc.add(rng);rings.push(rng);});
-  var mmx=0,mmy=0;document.addEventListener('mousemove',function(e){mmx=(e.clientX/window.innerWidth-.5)*2;mmy=(e.clientY/window.innerHeight-.5)*2;},{passive:true});
-  var rTO;window.addEventListener('resize',function(){clearTimeout(rTO);rTO=setTimeout(function(){cam.aspect=window.innerWidth/window.innerHeight;cam.updateProjectionMatrix();r.setSize(window.innerWidth,window.innerHeight);},120);});
-  var t=0;(function loop(){requestAnimationFrame(loop);t+=.005;pts.rotation.y=t*.055+mmx*.048;pts.rotation.x=mmy*.036;rings.forEach(function(rng,i){rng.rotation.x+=.003+i*.001;rng.rotation.y+=.004+i*.001;rng.position.y=Math.sin(t+i*1.2)*3;});r.render(sc,cam);})();
+
+/* ===== SWEET AMBIENT FAIRY SPARKLES ===== */
+(function initFairySparkles(){
+  var cont = document.getElementById('sparkle-container');
+  if (!cont) return;
+  var count = isTouch ? 10 : 20;
+  for (var i = 0; i < count; i++) {
+    var sp = document.createElement('div');
+    sp.className = 'fairy-sparkle';
+    var size = Math.random() * 6 + 3;
+    sp.style.width = size + 'px';
+    sp.style.height = size + 'px';
+    sp.style.left = (Math.random() * 100) + 'vw';
+    sp.style.animationDuration = (Math.random() * 14 + 10) + 's';
+    sp.style.animationDelay = (-Math.random() * 20) + 's';
+    cont.appendChild(sp);
+  }
 })();
-var hph=document.getElementById('hph'),hpx=0,hpy=0,hrx=0,hry=0;
-if(!isT)document.addEventListener('mousemove',function(e){hpx=(e.clientX/window.innerWidth-.5)*15;hpy=(e.clientY/window.innerHeight-.5)*9;},{passive:true});
-(function hpraf(){hrx+=(hpx-hrx)*.06;hry+=(hpy-hry)*.06;if(hph)hph.style.transform='perspective(900px) rotateY('+hrx+'deg) rotateX('+(-hry)+'deg)';requestAnimationFrame(hpraf);})();
-document.querySelectorAll('.pc,.gc,.vqb').forEach(function(card){
-  var cx=0,cy=0,crx=0,cry=0,active=false;
-  card.addEventListener('mousemove',function(e){var rect=card.getBoundingClientRect();cx=(e.clientX-rect.left-rect.width/2)/rect.width;cy=(e.clientY-rect.top-rect.height/2)/rect.height;if(!active){active=true;(function tr(){if(!active)return;crx+=(cx-crx)*.1;cry+=(cy-cry)*.1;card.style.transform='perspective(800px) rotateX('+(-cry*11)+'deg) rotateY('+(crx*11)+'deg) translateY(-6px)';requestAnimationFrame(tr);})();}});
-  card.addEventListener('mouseleave',function(){active=false;crx=0;cry=0;cx=0;cy=0;card.style.transform='';});
-  card.addEventListener('touchmove',function(e){var t=e.touches[0],rect=card.getBoundingClientRect();card.style.transform='perspective(800px) rotateX('+(-(t.clientY-rect.top-rect.height/2)/rect.height*6)+'deg) rotateY('+((t.clientX-rect.left-rect.width/2)/rect.width*6)+'deg)';},{passive:true});
-  card.addEventListener('touchend',function(){card.style.transform='';});
-});
-var ro=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');ro.unobserve(e.target);}});},{threshold:0.04});
-document.querySelectorAll('.rv,.rvl,.rvr').forEach(function(el){ro.observe(el);});
-var nav=document.getElementById('nav'),sc2=false;
-window.addEventListener('scroll',function(){if(!sc2){sc2=true;requestAnimationFrame(function(){sc2=false;if(!nav)return;if(window.scrollY>50){nav.style.background='rgba(253,248,243,.96)';nav.style.boxShadow='0 3px 25px rgba(180,100,140,.09)';}else{nav.style.background='rgba(253,248,243,.75)';nav.style.boxShadow='none';}});}},{passive:true});
-var mna=document.querySelectorAll('#mnav a');
-window.addEventListener('scroll',function(){var pos=window.scrollY+180;mna.forEach(function(a){var s=document.querySelector(a.getAttribute('href'));if(s){var top=s.offsetTop,bot=top+s.offsetHeight;if(pos>=top&&pos<bot)a.classList.add('act');else a.classList.remove('act');}});},{passive:true});
-/* iPhone wobbly dock effect on mobile bottom nav */
-(function(){
-  var links=document.querySelectorAll('#mnav a');
-  if(!links.length)return;
-  links.forEach(function(link,idx){
-    link.addEventListener('touchstart',function(e){
-      links.forEach(function(l,i){
-        var dist=Math.abs(i-idx);
-        if(dist===0){
-          l.style.transition='transform .45s cubic-bezier(.34,1.82,.64,1)';
-          l.style.transform='translateY(-14px) scale(1.35)';
-          l.style.color='var(--rd)';
-        } else if(dist===1){
-          l.style.transition='transform .45s cubic-bezier(.34,1.56,.64,1)';
-          l.style.transform='translateY(-6px) scale(1.14)';
-        } else if(dist===2){
-          l.style.transition='transform .38s cubic-bezier(.34,1.4,.64,1)';
-          l.style.transform='translateY(-2px) scale(1.05)';
-        } else {
-          l.style.transition='transform .3s var(--ez)';
-          l.style.transform='';
-        }
-      });
-    },{passive:true});
-    link.addEventListener('touchend',function(){
-      setTimeout(function(){
-        links.forEach(function(l){
-          l.style.transition='transform .5s cubic-bezier(.34,1.56,.64,1)';
-          l.style.transform='';
-          l.style.color='';
-        });
-      },180);
-    },{passive:true});
+
+/* ===== BUTTERY-SMOOTH LERP 3D TILT WITH SPECULAR GLARE ===== */
+(function initSmooth3DTilt(){
+  var cards = document.querySelectorAll('.tilt-card, .pc, .gc, .photo-main, .vqb');
+  cards.forEach(function(card){
+    // Inject specular glare overlay if not present
+    if (!card.querySelector('.tilt-glare')) {
+      var glare = document.createElement('div');
+      glare.className = 'tilt-glare';
+      card.appendChild(glare);
+    }
+
+    if (isTouch) return; // Touch uses gentle 3D breathing animation via CSS
+
+    var rect = null;
+    var targetRotX = 0, targetRotY = 0;
+    var curRotX = 0, curRotY = 0;
+    var isHovered = false;
+    var rafId = null;
+    var glareEl = card.querySelector('.tilt-glare');
+
+    function updateRect() {
+      rect = card.getBoundingClientRect();
+    }
+
+    function renderLoop() {
+      curRotX += (targetRotX - curRotX) * 0.12;
+      curRotY += (targetRotY - curRotY) * 0.12;
+      
+      card.style.transform = 'perspective(900px) rotateX(' + curRotX.toFixed(2) + 'deg) rotateY(' + curRotY.toFixed(2) + 'deg) translateY(-8px) scale3d(1.02, 1.02, 1.02)';
+
+      if (isHovered || Math.abs(curRotX) > 0.05 || Math.abs(curRotY) > 0.05) {
+        rafId = requestAnimationFrame(renderLoop);
+      } else {
+        card.style.transform = '';
+        rafId = null;
+      }
+    }
+
+    card.addEventListener('mouseenter', function(){
+      isHovered = true;
+      updateRect();
+      if (!rafId) rafId = requestAnimationFrame(renderLoop);
+    });
+
+    card.addEventListener('mousemove', function(e){
+      if (!rect) updateRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var normX = (x / rect.width) * 2 - 1;
+      var normY = (y / rect.height) * 2 - 1;
+      
+      var maxTilt = 12;
+      targetRotX = -normY * maxTilt;
+      targetRotY = normX * maxTilt;
+
+      if (glareEl) {
+        var glareX = (x / rect.width) * 100;
+        var glareY = (y / rect.height) * 100;
+        glareEl.style.background = 'radial-gradient(circle at ' + glareX.toFixed(1) + '% ' + glareY.toFixed(1) + '%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 65%)';
+      }
+    });
+
+    card.addEventListener('mouseleave', function(){
+      isHovered = false;
+      targetRotX = 0;
+      targetRotY = 0;
+    });
   });
 })();
-(function(){var el=document.getElementById('httl');if(!el)return;var txt='Physician · Scholar · Free Spirit · Gym Lover';var i=0,span=document.createElement('span'),car=document.createElement('span');car.className='twc';el.appendChild(span);el.appendChild(car);function type(){if(i<=txt.length){span.textContent=txt.slice(0,i++);setTimeout(type,i<=txt.length?50:1000);}else{car.style.display='none';}}setTimeout(type,1600);})();
-(function(){var wrap=document.getElementById('pw');if(!wrap)return;var mob=window.innerWidth<600,n=mob?5:13;var cols=['#f9c8d4','#f2a0b8','#fadadd','#fbb6c8','#e8a4b8','#fce4ec'];for(var i=0;i<n;i++){var p=document.createElement('div');p.className='pt';var sz=Math.random()*13+7;p.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;animation-duration:'+(Math.random()*9+8)+'s;animation-delay:-'+(Math.random()*14)+'s;background:'+cols[Math.floor(Math.random()*cols.length)]+';--d:'+((Math.random()-.5)*200)+'px;--s:'+(Math.random()*720-360)+'deg;';wrap.appendChild(p);}})();
-(function(){var em=['💕','🌸','✨','💖','🌺','💗'];function sp(){var h=document.createElement('div');h.className='fh';h.textContent=em[Math.floor(Math.random()*em.length)];h.style.cssText='left:'+(Math.random()*92)+'vw;bottom:0;font-size:'+(Math.random()*11+9)+'px;animation-duration:'+(Math.random()*3+3.5)+'s;';document.body.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},7000);}setInterval(sp,2200);})();
-if(!isT){var sc3=['#e8a4b8','#c9946a','#d4b8e0','#f2c4a4','#c47a92'],lst=0;document.addEventListener('mousemove',function(e){var now=Date.now();if(now-lst<58)return;lst=now;var s=document.createElement('div');s.className='sp';var ang=Math.random()*Math.PI*2,dist=Math.random()*30+10;s.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;width:'+(Math.random()*6+4)+'px;height:'+(Math.random()*6+4)+'px;background:'+sc3[Math.floor(Math.random()*sc3.length)]+';--sx:'+(Math.cos(ang)*dist)+'px;--sy:'+(Math.sin(ang)*dist)+'px;';document.body.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},650);},{passive:true});}
-document.addEventListener('click',function(e){if(e.target.tagName==='A'||e.target.tagName==='BUTTON')return;var hs=['💕','💖','💗','🌸','✨','💝','🌺'];for(var i=0;i<7;i++){(function(i){var h=document.createElement('div');h.className='ch';h.textContent=hs[Math.floor(Math.random()*hs.length)];var ang=(i/7)*Math.PI*2+Math.random()*.4,d1=24+Math.random()*24,d2=54+Math.random()*50;h.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;font-size:1.2rem;animation-delay:'+(i*.04)+'s;--cx:'+(Math.cos(ang)*d1)+'px;--cy:'+(Math.sin(ang)*d1)+'px;--cx2:'+(Math.cos(ang)*d2)+'px;--cy2:'+(Math.sin(ang)*d2)+'px;';document.body.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},920);}).(i);}});
-var vn=document.getElementById('vname');
-if(vn){vn.style.cursor='pointer';vn.addEventListener('click',function(e){e.stopPropagation();var msg=document.createElement('div');msg.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:"Cormorant Garamond",serif;font-size:clamp(1.3rem,4vw,1.9rem);color:var(--rd);letter-spacing:4px;text-align:center;pointer-events:none;z-index:9999;background:rgba(253,248,243,.96);padding:22px 36px;border-radius:20px;border:1px solid rgba(232,164,184,.36);box-shadow:0 16px 50px rgba(196,122,146,.26);transition:transform .45s cubic-bezier(.34,1.56,.64,1);will-change:transform';msg.innerHTML='💕 Vaani 💕<br><span style="font-size:.8rem;letter-spacing:2px;color:var(--ts)">Simply Unforgettable</span>';document.body.appendChild(msg);requestAnimationFrame(function(){requestAnimationFrame(function(){msg.style.transform='translate(-50%,-50%) scale(1)';});});setTimeout(function(){msg.style.transform='translate(-50%,-50%) scale(0)';setTimeout(function(){if(msg.parentNode)msg.parentNode.removeChild(msg);},500);},2400);var eg=['💕','💖','🌸','✨','💗','🌺'];for(var k=0;k<14;k++){(function(k){setTimeout(function(){var h=document.createElement('div');h.className='fh';h.textContent=eg[k%6];h.style.cssText='left:'+(24+Math.random()*52)+'vw;bottom:22vh;font-size:1.5rem;animation-duration:2.2s;';document.body.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},2500);},k*80);}).(k);}});}
+
+/* ===== HERO PHOTO REAL-TIME 3D PARALLAX (Desktop) ===== */
+if (!isTouch) {
+  var heroPhoto = document.getElementById('hphoto') || document.querySelector('.photo-main');
+  var targetHX = 0, targetHY = 0, curHX = 0, curHY = 0;
+  document.addEventListener('mousemove', function(e){
+    var nx = (e.clientX / window.innerWidth) * 2 - 1;
+    var ny = (e.clientY / window.innerHeight) * 2 - 1;
+    targetHX = nx * 14;
+    targetHY = -ny * 10;
+  });
+  (function animHeroPhoto(){
+    curHX += (targetHX - curHX) * 0.08;
+    curHY += (targetHY - curHY) * 0.08;
+    if (heroPhoto) {
+      heroPhoto.style.transform = 'perspective(900px) rotateY(' + curHX.toFixed(2) + 'deg) rotateX(' + curHY.toFixed(2) + 'deg)';
+    }
+    requestAnimationFrame(animHeroPhoto);
+  })();
+}
+
+/* ===== THREE.JS 3D BACKGROUND (Safe initialization) ===== */
+(function initThreeBackground(){
+  if (typeof THREE === 'undefined') return;
+  var canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+
+  try {
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 40;
+
+    var geo = new THREE.BufferGeometry();
+    var cnt = isTouch ? 140 : 280;
+    var ps = new Float32Array(cnt * 3), cs = new Float32Array(cnt * 3);
+    var pal = [new THREE.Color('#e8a4b8'), new THREE.Color('#d4b8e0'), new THREE.Color('#f2c4a4'), new THREE.Color('#c9946a'), new THREE.Color('#c8dff5')];
+
+    for (var i = 0; i < cnt; i++) {
+      ps[i*3] = (Math.random() - 0.5) * 120;
+      ps[i*3+1] = (Math.random() - 0.5) * 120;
+      ps[i*3+2] = (Math.random() - 0.5) * 80;
+      var c = pal[Math.floor(Math.random() * pal.length)];
+      cs[i*3] = c.r; cs[i*3+1] = c.g; cs[i*3+2] = c.b;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(ps, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(cs, 3));
+    var pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.75, vertexColors: true, transparent: true, opacity: 0.65 }));
+    scene.add(pts);
+
+    var rings3 = [];
+    ['#e8a4b8','#d4b8e0','#f2c4a4'].forEach(function(col, i){
+      var r = new THREE.Mesh(
+        new THREE.TorusGeometry(6 + i * 4, 0.045, 8, 60),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(col), transparent: true, opacity: 0.26 })
+      );
+      r.rotation.x = Math.random() * Math.PI;
+      r.rotation.y = Math.random() * Math.PI;
+      r.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, -20);
+      scene.add(r);
+      rings3.push(r);
+    });
+
+    var mmx = 0, mmy = 0, curMMX = 0, curMMY = 0;
+    if (!isTouch) {
+      document.addEventListener('mousemove', function(e){
+        mmx = (e.clientX / window.innerWidth - 0.5) * 2;
+        mmy = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+    }
+
+    window.addEventListener('resize', function(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    var t = 0;
+    function loopThree(){
+      requestAnimationFrame(loopThree);
+      t += 0.005;
+      curMMX += (mmx - curMMX) * 0.05;
+      curMMY += (mmy - curMMY) * 0.05;
+      pts.rotation.y = t * 0.05 + curMMX * 0.06;
+      pts.rotation.x = curMMY * 0.05;
+      rings3.forEach(function(r, i){
+        r.rotation.x += 0.003 + i * 0.001;
+        r.rotation.y += 0.004 + i * 0.001;
+        r.position.y = Math.sin(t + i * 1.2) * 3;
+      });
+      renderer.render(scene, camera);
+    }
+    loopThree();
+  } catch(err) {
+    console.warn('Three.js setup skipped:', err);
+  }
+})();
+
+/* ===== SCROLL REVEAL OBSERVER WITH GUARANTEED FALLBACK ===== */
+(function initScrollReveal(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.classList.add('vis');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.rv, .rvl, .rvr').forEach(function(el){ obs.observe(el); });
+  // Fallback to guarantee sections are visible
+  setTimeout(function(){
+    document.querySelectorAll('.rv, .rvl, .rvr').forEach(function(el){ el.classList.add('vis'); });
+  }, 1800);
+})();
+
+/* ===== NAVBAR SCROLL EFFECT ===== */
+window.addEventListener('scroll', function(){
+  var n = document.getElementById('nav');
+  if (!n) return;
+  if (window.scrollY > 40) {
+    n.style.background = 'rgba(253,248,243,0.92)';
+    n.style.boxShadow = '0 6px 30px rgba(180,100,140,0.12)';
+  } else {
+    n.style.background = 'rgba(253,248,243,0.7)';
+    n.style.boxShadow = 'none';
+  }
+}, { passive: true });
+
+/* ===== SAKURA PETALS ===== */
+(function initSakura(){
+  var wrap = document.getElementById('petalWrap');
+  if (!wrap) return;
+  var count = isTouch ? 8 : 16;
+  var colors = ['#f9c8d4', '#f2a0b8', '#fadadd', '#fbb6c8', '#e8a4b8', '#fce4ec'];
+  for (var i = 0; i < count; i++) {
+    var p = document.createElement('div');
+    p.className = 'petal';
+    var size = Math.random() * 12 + 8;
+    var left = Math.random() * 100;
+    var dur = Math.random() * 8 + 8;
+    var delay = Math.random() * 12;
+    var drift = (Math.random() - 0.5) * 200;
+    var spin = Math.random() * 720 - 360;
+    p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + left + '%;'
+      + 'animation-duration:' + dur + 's;animation-delay:-' + delay + 's;'
+      + 'background:' + colors[Math.floor(Math.random() * colors.length)] + ';'
+      + '--drift:' + drift + 'px;--spin:' + spin + 'deg;border-radius:50% 0 50% 0;';
+    wrap.appendChild(p);
+  }
+})();
+
+/* ===== FLOATING HEARTS (Ambient Rising) ===== */
+(function initFloatingHearts(){
+  var emojis = ['💕', '🌸', '✨', '💖', '🌺', '💗'];
+  function spawnHeart(){
+    var h = document.createElement('div');
+    h.className = 'fheart';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = (Math.random() * 95) + 'vw';
+    h.style.bottom = '-20px';
+    h.style.fontSize = (Math.random() * 10 + 12) + 'px';
+    h.style.animationDuration = (Math.random() * 3 + 3.5) + 's';
+    document.body.appendChild(h);
+    setTimeout(function(){ h.remove(); }, 6000);
+  }
+  setInterval(spawnHeart, 1600);
+})();
+
+/* ===== CLICK HEART & SPARKLE BURST ===== */
+document.addEventListener('click', function(e){
+  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+  var hearts = ['💕', '💖', '💗', '🌸', '✨', '💝', '🌺'];
+  var count = 6;
+  for (var i = 0; i < count; i++) {
+    (function(i){
+      var h = document.createElement('div');
+      h.className = 'click-heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      var ang = (i / count) * Math.PI * 2;
+      var dist = 40 + Math.random() * 45;
+      h.style.cssText = 'left:' + e.clientX + 'px;top:' + e.clientY + 'px;'
+        + 'animation-delay:' + (i * 0.04) + 's;'
+        + '--hx:' + (Math.cos(ang) * dist / 2) + 'px;--hy:' + (Math.sin(ang) * dist / 2) + 'px;'
+        + '--hx2:' + (Math.cos(ang) * dist) + 'px;--hy2:' + (Math.sin(ang) * dist) + 'px;';
+      document.body.appendChild(h);
+      setTimeout(function(){ h.remove(); }, 950);
+    })(i);
+  }
+});
+
+/* ===== TYPEWRITER EFFECT ===== */
+(function initTypewriter(){
+  var el = document.querySelector('.hero-title');
+  if (!el) return;
+  var orig = el.textContent.trim();
+  el.textContent = '';
+  var span = document.createElement('span');
+  el.appendChild(span);
+  var cur = document.createElement('span');
+  cur.className = 'tw-cursor'; cur.textContent = '|';
+  el.appendChild(cur);
+  var i = 0;
+  function type(){
+    if (i <= orig.length) {
+      span.textContent = orig.slice(0, i++);
+      setTimeout(type, i < orig.length ? 55 : 450);
+    } else {
+      cur.style.display = 'none';
+    }
+  }
+  setTimeout(type, 1000);
+})();
+
+/* ===== VAANI NAME CLICK EASTER EGG ===== */
+var heroNameEl = document.querySelector('.hero-name');
+if (heroNameEl) {
+  heroNameEl.addEventListener('click', function(){
+    var msg = document.createElement('div');
+    msg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+      + 'font-family:"Cormorant Garamond",serif;font-size:clamp(1.5rem,4vw,2.2rem);'
+      + 'color:#c47a92;letter-spacing:4px;text-align:center;pointer-events:none;z-index:9999;'
+      + 'animation:clickBurst 1.5s ease-out forwards;--hx:0;--hy:0;--hx2:0;--hy2:0;'
+      + 'background:rgba(253,248,243,.94);padding:22px 38px;border-radius:24px;'
+      + 'border:1px solid rgba(232,164,184,.5);backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(180,100,140,0.25);';
+    msg.innerHTML = '💕 Dr. Vaani 💕<br><span style="font-size:.9rem;letter-spacing:2px;color:#6b5070">Simply Unforgettable</span>';
+    document.body.appendChild(msg);
+    setTimeout(function(){ msg.remove(); }, 2200);
+
+    for (var i = 0; i < 14; i++) {
+      (function(idx){
+        setTimeout(function(){
+          var h = document.createElement('div');
+          h.className = 'fheart';
+          h.textContent = ['💕','💖','🌸','✨','💗','🌺'][idx % 6];
+          h.style.left = (25 + Math.random() * 50) + 'vw';
+          h.style.bottom = '35vh';
+          h.style.animationDuration = '2s';
+          h.style.fontSize = '1.8rem';
+          document.body.appendChild(h);
+          setTimeout(function(){ h.remove(); }, 2200);
+        }, idx * 80);
+      })(i);
+    }
+  });
+}
+
+/* ===== MOBILE BOTTOM PILL NAV: Wobble & Scroll spy ===== */
+(function initMobileNav(){
+  var mobNav = document.getElementById('mobile-nav');
+  if (!mobNav) return;
+  var mobLinks = mobNav.querySelectorAll('a');
+
+  // Active section spy
+  window.addEventListener('scroll', function(){
+    var scrollPos = window.scrollY + 220;
+    mobLinks.forEach(function(a){
+      var targetId = a.getAttribute('href');
+      var sec = document.querySelector(targetId);
+      if (sec) {
+        var top = sec.offsetTop;
+        var bot = top + sec.offsetHeight;
+        if (scrollPos >= top && scrollPos < bot) {
+          a.classList.add('mob-active');
+        } else {
+          a.classList.remove('mob-active');
+        }
+      }
+    });
+  }, { passive: true });
+
+  // iPhone dock spring wobble touch interaction
+  mobLinks.forEach(function(link, idx){
+    link.addEventListener('touchstart', function(){
+      mobLinks.forEach(function(l, i){
+        var d = Math.abs(i - idx);
+        var t = d === 0 ? 'translateY(-12px) scale(1.32)' : d === 1 ? 'translateY(-5px) scale(1.12)' : d === 2 ? 'translateY(-2px) scale(1.04)' : '';
+        var dur = d === 0 ? '0.4s' : '0.35s';
+        l.style.transition = 'transform ' + dur + ' cubic-bezier(.34, 1.82, .64, 1)';
+        l.style.transform = t;
+        if (d === 0) l.style.color = 'var(--rose-deep)';
+      });
+    }, { passive: true });
+
+    link.addEventListener('touchend', function(){
+      setTimeout(function(){
+        mobLinks.forEach(function(l){
+          l.style.transition = 'transform 0.5s cubic-bezier(.34, 1.56, .64, 1)';
+          l.style.transform = '';
+          l.style.color = '';
+        });
+      }, 180);
+    }, { passive: true });
+  });
 })();
 </script>
 </body>
